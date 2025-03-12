@@ -1,0 +1,120 @@
+// SPDX-FileCopyrightText: Copyright 2025 Carabiner Systems, Inc
+// SPDX-License-Identifier: Apache-2.0
+
+package cmd
+
+import (
+	"errors"
+	"fmt"
+
+	"github.com/spf13/cobra"
+
+	"github.com/carabiner-dev/vexflow/pkg/flow"
+	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
+	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+)
+
+type updateOptions struct {
+	repoOptions
+}
+
+// Validates the options in context with arguments
+func (uo *updateOptions) Validate() error {
+	var errs = []error{}
+	if err := uo.repoOptions.Validate(); err != nil {
+		errs = append(errs, err)
+	}
+
+	return errors.Join(errs...)
+}
+
+// AddFlags adds the subcommands flags
+func (to *updateOptions) AddFlags(cmd *cobra.Command) {
+	to.repoOptions.AddFlags(cmd)
+}
+
+func (to *updateOptions) GetBackendRepo() (string, string, error) {
+	backendOrg := ""
+	backendRepo := ""
+
+	// By default we collect data from .vexflow
+	if to.TriageRepo == DefaultBackendRepo {
+		org, _, err := github.ParseSlug(to.RepoSlug)
+		if err != nil {
+			return "", "", fmt.Errorf("parsing repo slug: %w", err)
+		}
+		backendOrg = org
+		backendRepo = DefaultBackendRepo
+	} else {
+		org, repo, err := github.ParseSlug(to.TriageRepo)
+		if err != nil {
+			return "", "", fmt.Errorf("parsing triage repo slug: %w", err)
+		}
+		backendOrg = org
+		backendRepo = repo
+	}
+
+	return backendOrg, backendRepo, nil
+}
+
+func addUpdate(parentCmd *cobra.Command) {
+	opts := &updateOptions{}
+	triageCommand := &cobra.Command{
+		Short:             "updates all open triage processes running for the branch",
+		Use:               "update",
+		Example:           fmt.Sprintf(`%s update --repo org/repo --branch=main `, appname),
+		SilenceUsage:      false,
+		SilenceErrors:     true,
+		PersistentPreRunE: initLogging,
+		PreRunE: func(_ *cobra.Command, args []string) error {
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			// Validate the options
+			if err := opts.Validate(); err != nil {
+				return err
+			}
+
+			backendOrg, backendRepo, err := opts.GetBackendRepo()
+			if err != nil {
+				return err
+			}
+
+			backend, err := github.New()
+			if err != nil {
+				return fmt.Errorf("creating github backend: %w", err)
+			}
+
+			backend.Options.Org = backendOrg
+			backend.Options.Repo = backendRepo
+
+			mgr, err := flow.New(
+				flow.WithBackend(backend),
+				flow.WithScanner(osv.New()),
+			)
+			if err != nil {
+				return err
+			}
+
+			org, repo, err := github.ParseSlug(opts.RepoSlug)
+			if err != nil {
+				return err
+			}
+
+			branch := &api.Branch{
+				Repository: fmt.Sprintf("github.com/%s/%s", org, repo),
+				Name:       opts.BranchName,
+			}
+
+			if err := mgr.UpdateBranchFlow(branch); err != nil {
+				return err
+			}
+
+			return nil
+		},
+	}
+	opts.AddFlags(triageCommand)
+	parentCmd.AddCommand(triageCommand)
+}
