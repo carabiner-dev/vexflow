@@ -4,6 +4,7 @@
 package flow
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -35,6 +36,7 @@ type Manager struct {
 	Branches      []*api.Branch
 	scanner       api.Scanner
 	triageBackend api.TriageBackend
+	publisher     api.VexPublisher
 }
 
 func (mgr *Manager) CreateTriage(branch *api.Branch, vuln *api.Vulnerability) (*api.Triage, error) {
@@ -181,6 +183,21 @@ func (mgr *Manager) PublishStatements(triages []*api.Triage) error {
 	if err != nil {
 		return fmt.Errorf("generating VEX document: %w", err)
 	}
+	// Output the statement to debug
+	doc.ToJSON(os.Stdout)
 
-	return doc.ToJSON(os.Stdout)
+	// Publish the document using the configured publisher
+	notice, err := mgr.publisher.PublishDocument(doc)
+	if err != nil {
+		return fmt.Errorf("publishing document: %w", err)
+	}
+
+	errs := []error{}
+	for _, t := range triages {
+		if err := mgr.triageBackend.AppendPublishNotice(t, notice); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errors.Join(errs...)
 }

@@ -6,10 +6,14 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/carabiner-dev/vexflow/pkg/flow"
+	"github.com/carabiner-dev/vexflow/pkg/publish/dir"
 	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
 	"github.com/carabiner-dev/vexflow/pkg/triage/github"
 
@@ -18,6 +22,7 @@ import (
 
 type updateOptions struct {
 	repoOptions
+	publishPath string
 }
 
 // Validates the options in context with arguments
@@ -27,12 +32,19 @@ func (uo *updateOptions) Validate() error {
 		errs = append(errs, err)
 	}
 
+	if uo.publishPath == "" {
+		errs = append(errs, fmt.Errorf("publish-path not set, define a URI to publish VEX data"))
+	}
+
 	return errors.Join(errs...)
 }
 
 // AddFlags adds the subcommands flags
 func (to *updateOptions) AddFlags(cmd *cobra.Command) {
 	to.repoOptions.AddFlags(cmd)
+	cmd.PersistentFlags().StringVar(
+		&to.publishPath, "publish-path", "file:"+filepath.Join(os.TempDir(), "vexflow"), "location to publish VEX documents",
+	)
 }
 
 func (to *updateOptions) GetBackendRepo() (string, string, error) {
@@ -90,9 +102,20 @@ func addUpdate(parentCmd *cobra.Command) {
 			backend.Options.Org = backendOrg
 			backend.Options.Repo = backendRepo
 
+			// Create the publisher, for now we only support the dir publisher
+			var publisher api.VexPublisher
+			if strings.HasPrefix(opts.publishPath, "file:") {
+				publisher = &dir.Publisher{
+					Path: strings.TrimPrefix(opts.publishPath, "file:"),
+				}
+			} else {
+				return fmt.Errorf("no handler for publish location")
+			}
+
 			mgr, err := flow.New(
 				flow.WithBackend(backend),
 				flow.WithScanner(osv.New()),
+				flow.WithPublisher(publisher),
 			)
 			if err != nil {
 				return err

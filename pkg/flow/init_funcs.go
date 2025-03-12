@@ -30,3 +30,13 @@ func WithScanner(s api.Scanner) initFunc {
 		return nil
 	}
 }
+
+func WithPublisher(p api.VexPublisher) initFunc {
+	return func(m *Manager) error {
+		if p == nil {
+			return fmt.Errorf("vex publisher not defined")
+		}
+		m.publisher = p
+		return nil
+	}
+}

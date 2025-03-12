@@ -140,3 +140,27 @@ branch+component.
 		embed,
 	), nil
 }
+
+func generatePublishNoticeComment(t *api.Triage, notice *api.StatementNotice) (string, error) {
+	// Marshal the notice to json
+	data, err := json.Marshal(notice)
+	if err != nil {
+		return "", fmt.Errorf("marshaling publish notice: %w", err)
+	}
+
+	dataBlock := "<!--\n" + bodySeparatorNotice + "\n" + string(data) + "\n" + bodySeparatorNotice + "\n-->\n"
+
+	author := ""
+	if t.LastCommand() != nil {
+		author = " @" + t.LastCommand().AuthorHandle
+	}
+
+	comment := fmt.Sprintf("Thanks for the assessment%s!\n\n", author)
+	comment += fmt.Sprintf("A VEX statement has been published capturing your review of the impact of %s ", t.Vulnerability.ID)
+	comment += "on the project. This issue will now be closed and no further action is needed.\n\n"
+	comment += "If the exploitability status changes, feel free to open this issue again and "
+	comment += "issue a new slash command to update the VEX status.\n"
+	comment += dataBlock
+
+	return comment, nil
+}

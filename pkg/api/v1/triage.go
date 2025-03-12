@@ -31,4 +31,5 @@ type TriageBackend interface {
 	ListBranchTriages(*Branch) ([]*Triage, error)
 	CreateTriage(*Branch, *Vulnerability) (*Triage, error)
 	ReadTriageStatus(*Triage) error
+	AppendPublishNotice(*Triage, *StatementNotice) error
 }

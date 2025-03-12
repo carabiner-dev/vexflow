@@ -194,16 +194,9 @@ func (th *TriageHandler) CreateTriage(branch *api.Branch, vuln *api.Vulnerabilit
 }
 
 func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
-	var nr int
-	if t.BackendID != "" {
-		i, err := strconv.Atoi(t.BackendID)
-		if err != nil {
-			return fmt.Errorf("parsing issue number")
-		}
-		nr = i
-	}
-	if nr == 0 {
-		return fmt.Errorf("issue number not found")
+	nr, err := getIssueNumber(t)
+	if err != nil {
+		return err
 	}
 
 	// Read all the issue comments
@@ -328,7 +321,7 @@ func parsePublishNotice(c *gogithub.IssueComment) (*api.StatementNotice, error) 
 		return nil, nil
 	}
 
-	parts := strings.Split(rawBody, bodySeparator)
+	parts := strings.Split(rawBody, bodySeparatorNotice)
 	if len(parts) < 2 {
 		return nil, fmt.Errorf("parsing notice from comment")
 	}
@@ -339,4 +332,58 @@ func parsePublishNotice(c *gogithub.IssueComment) (*api.StatementNotice, error) 
 	}
 
 	return notice, nil
+}
+
+func getIssueNumber(t *api.Triage) (int, error) {
+	var nr int
+	if t.BackendID != "" {
+		i, err := strconv.Atoi(t.BackendID)
+		if err != nil {
+			return 0, fmt.Errorf("parsing issue number")
+		}
+		nr = i
+	}
+	if nr == 0 {
+		return 0, fmt.Errorf("issue number not found")
+	}
+	return nr, nil
+}
+
+// AppendPublishNotice appends publishing notices to the issue conversation
+func (th *TriageHandler) AppendPublishNotice(t *api.Triage, notice *api.StatementNotice) error {
+	nr, err := getIssueNumber(t)
+	if err != nil {
+		return err
+	}
+
+	cmd := t.LastCommand()
+	if cmd == nil {
+		return fmt.Errorf("unable to find last slash command in triage")
+	}
+
+	if cmd.Notice != nil {
+		return fmt.Errorf("last slash command already has a publish notice")
+	}
+
+	// Generate the comment text
+	commentText, err := generatePublishNoticeComment(t, notice)
+	if err != nil {
+		return fmt.Errorf("generating issue comment: %w", err)
+	}
+
+	// Publish comment to issue
+	if _, _, err := th.client.Issues.CreateComment(
+		context.Background(), th.Options.Org, th.Options.Repo, nr,
+		&gogithub.IssueComment{
+			Body: gogithub.String(commentText),
+		},
+	); err != nil {
+		return fmt.Errorf("posting publishing notice comment: %w", err)
+	}
+
+	// Append notice to triage
+	cmd.Notice = notice
+
+	// Done
+	return nil
 }
