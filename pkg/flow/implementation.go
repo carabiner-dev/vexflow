@@ -4,6 +4,9 @@
 package flow
 
 import (
+	"slices"
+	"strings"
+
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/google/uuid"
 	"github.com/openvex/go-vex/pkg/vex"
@@ -30,7 +33,55 @@ func (di *defaultImplementation) EnsureBranchClones([]*api.Branch) error {
 }
 
 func (di *defaultImplementation) ScanVulnerabilities(scanner api.Scanner, branch *api.Branch) ([]*api.Vulnerability, error) {
-	return scanner.GetBranchVulnerabilities(branch)
+	vulns, err := scanner.GetBranchVulnerabilities(branch)
+	if err != nil {
+		return nil, err
+	}
+	return di.dedupeVulns(vulns), nil
+}
+
+func (di *defaultImplementation) dedupeVulns(vulns []*api.Vulnerability) []*api.Vulnerability {
+	index := map[string]*api.Vulnerability{}
+	for _, v := range vulns {
+		id := v.ID
+		aliases := []string{}
+		if !slices.Contains(aliases, id) {
+			aliases = append(aliases, id)
+		}
+		for _, i := range v.Aliases {
+			if strings.HasPrefix("CVE-", id) {
+				id = i
+			}
+			if !slices.Contains(aliases, i) {
+				aliases = append(aliases, i)
+			}
+		}
+		key := strings.Join([]string{id, v.ComponentPurl()}, "::")
+		if _, ok := index[key]; !ok {
+			index[key] = &api.Vulnerability{
+				ID:        id,
+				Aliases:   aliases,
+				Summary:   v.Summary,
+				Details:   v.Details,
+				Component: v.Component,
+			}
+			continue
+		}
+
+		// If we have one, then we augment if
+		for _, i := range aliases {
+			if !slices.Contains(index[key].Aliases, i) {
+				index[key].Aliases = append(index[key].Aliases, i)
+			}
+		}
+	}
+
+	ret := []*api.Vulnerability{}
+	for _, v := range index {
+		ret = append(ret, v)
+	}
+
+	return ret
 }
 
 func (di *defaultImplementation) ListBranchTriages(*api.Branch) ([]*api.Triage, error) {

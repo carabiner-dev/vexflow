@@ -18,6 +18,17 @@ import (
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
+var (
+	purple    = lipgloss.Color("99")
+	gray      = lipgloss.Color("245")
+	lightGray = lipgloss.Color("241")
+
+	headerStyle  = lipgloss.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
+	cellStyle    = lipgloss.NewStyle().Padding(0, 3) //.Width(14)
+	oddRowStyle  = cellStyle.Foreground(gray)
+	evenRowStyle = cellStyle.Foreground(lightGray)
+)
+
 type lsOptions struct {
 	repoOptions
 }
@@ -88,15 +99,6 @@ func addLs(parentCmd *cobra.Command) {
 			if err != nil {
 				return err
 			}
-
-			purple := lipgloss.Color("99")
-			gray := lipgloss.Color("245")
-			lightGray := lipgloss.Color("241")
-
-			headerStyle := lipgloss.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
-			cellStyle := lipgloss.NewStyle().Padding(0, 3) //.Width(14)
-			oddRowStyle := cellStyle.Foreground(gray)
-			evenRowStyle := cellStyle.Foreground(lightGray)
 
 			t := table.New().
 				Border(lipgloss.NormalBorder()).

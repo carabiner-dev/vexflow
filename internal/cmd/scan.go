@@ -6,8 +6,10 @@ package cmd
 import (
 	"errors"
 	"fmt"
+	"strings"
 
-	"github.com/sirupsen/logrus"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
 
 	"github.com/carabiner-dev/vexflow/pkg/flow"
@@ -85,15 +87,32 @@ func addScan(parentCmd *cobra.Command) {
 				return err
 			}
 
-			logrus.Infof("Scan de %s", branch.ClonePath)
+			t := table.New().
+				Border(lipgloss.NormalBorder()).
+				BorderStyle(lipgloss.NewStyle().Foreground(purple)).
+				StyleFunc(func(row, col int) lipgloss.Style {
+					switch {
+					case row == table.HeaderRow:
+						return headerStyle
+					case row%2 == 0:
+						return evenRowStyle
+					default:
+						return oddRowStyle
+					}
+				}).
+				Headers("VULNERABILITY", "ALIASES", "COMPONENT")
 
-			for _, v := range vulns {
-				fmt.Println(v.ID, v.ComponentPurl())
-				fmt.Printf("%+v\n", *v)
+			// You can also add tables row-by-row
+			//t.Row("English", "You look absolutely fabulous.", "How's it going?")
+			for _, vuln := range vulns {
+				t.Row(
+					vuln.ID,
+					strings.Join(vuln.Aliases, "\n"),
+					vuln.ComponentPurl(),
+				)
 			}
 
-			fmt.Printf("%+v", vulns)
-
+			fmt.Println(t)
 			return nil
 		},
 	}
