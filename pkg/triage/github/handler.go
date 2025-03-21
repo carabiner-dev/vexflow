@@ -19,7 +19,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func ParseSlug(slug string) (string, string, error) {
+func ParseSlug(slug string) (org, repo string, err error) {
 	parts := strings.Split(slug, "/")
 	if len(parts) != 2 {
 		return "", "", fmt.Errorf("invalid repo slug %q", slug)
@@ -65,7 +65,6 @@ type Options struct {
 
 // ReadStatusList
 func (th *TriageHandler) ReadStatusList([]*api.Vulnerability) {
-
 }
 
 // ListTriages returns a list of all triages in a repo for a branch
@@ -84,7 +83,7 @@ func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, e
 
 	for _, i := range issues {
 		embedded, err := extractEmbeddedMessage(i)
-		// FIXME(puerco): Ignore malformed
+		// TODO(puerco): Ignore malformed
 		if err != nil {
 			return nil, fmt.Errorf("parsing issue %d: %w", i.GetNumber(), err)
 		}
@@ -125,7 +124,7 @@ func extractEmbeddedMessage(issue *gogithub.Issue) (*EmbeddedMessage, error) {
 		return nil, fmt.Errorf("malformed issue body (issue #%d)", issue.GetNumber())
 	}
 
-	var embedded = &EmbeddedMessage{}
+	embedded := &EmbeddedMessage{}
 	if err := json.Unmarshal([]byte(parts[1]), embedded); err != nil {
 		return nil, fmt.Errorf("parsing triage data from issue: %w", err)
 	}
@@ -263,7 +262,7 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 }
 
 // Parses the slash command data from an issue comment
-func parseSlashCommand(c *gogithub.IssueComment) (*api.SlashCommand, error) {
+func parseSlashCommand(c *gogithub.IssueComment) (*api.SlashCommand, error) { //nolint:unparam //  TODO Check valid command
 	rawText := c.GetBody()
 	if rawText == "" {
 		return nil, nil
@@ -271,7 +270,7 @@ func parseSlashCommand(c *gogithub.IssueComment) (*api.SlashCommand, error) {
 
 	rawText = strings.TrimSpace(rawText)
 	scanner := bufio.NewScanner(strings.NewReader(rawText))
-	var i = 0
+	i := 0
 	var firstLine, blurb string
 	for scanner.Scan() {
 		i++

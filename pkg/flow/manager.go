@@ -88,30 +88,22 @@ func (mgr *Manager) UpdateBranchFlowWithScan(branch *api.Branch) error {
 		return fmt.Errorf("listing open triage processes: %w", err)
 	}
 
-	if len(triages) == 0 {
-		logrus.Error("0 triages found. This should not happen")
-		os.Exit(0)
-	}
-
 	// Update the open triage cases
-	new, err := mgr.impl.OpenNewTriages(mgr.triageBackend, branch, vulns, triages)
+	newTriages, err := mgr.impl.OpenNewTriages(mgr.triageBackend, branch, vulns, triages)
 	if err != nil {
 		return fmt.Errorf("opening new triage processes: %w", err)
 	}
 
-	// FIXME(puerco): Here any vulns that disappeared that have a triage
-	// should be closed.
+	// TODO(puerco): Here any vulns that disappeared that have a triage
+	// need to be closed.
 
-	logrus.Infof("Created %d new triage processes for new vulnerabilities", len(new))
+	logrus.Infof("Created %d new triage processes for new vulnerabilities", len(newTriages))
 
 	waitAssessment, waitStatement, waitClose := mgr.impl.ClassifyTriages(triages)
 	logrus.Infof(
 		"Triage Status: [%d+%d To Assess] [%d To VEX] [%d To Close]",
-		len(waitAssessment), len(new), len(waitStatement), len(waitClose),
+		len(waitAssessment), len(newTriages), len(waitStatement), len(waitClose),
 	)
-
-	// Append the new triages to the list of those waiting for assessment
-	waitAssessment = append(waitAssessment, new...)
 
 	if err := mgr.PublishStatements(waitStatement); err != nil {
 		return fmt.Errorf("publishing statements: %w", err)
@@ -199,7 +191,7 @@ func (mgr *Manager) UpdateBranchFlow(branch *api.Branch) error {
 }
 
 func (mgr *Manager) CloseOpenTriages(triages []*api.Triage) error {
-	var errs = []error{}
+	errs := []error{}
 	for _, t := range triages {
 		if err := mgr.triageBackend.CloseTriage(t); err != nil {
 			errs = append(errs, err)
@@ -220,8 +212,6 @@ func (mgr *Manager) PublishStatements(triages []*api.Triage) error {
 	if err != nil {
 		return fmt.Errorf("generating VEX document: %w", err)
 	}
-	// Output the statement to debug
-	doc.ToJSON(os.Stdout)
 
 	// Publish the document using the configured publisher
 	notice, err := mgr.publisher.PublishDocument(doc)

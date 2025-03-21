@@ -18,10 +18,7 @@ type repoOptions struct {
 	UseSSH     bool
 }
 
-func (to *repoOptions) GetBackendRepo() (string, string, error) {
-	backendOrg := ""
-	backendRepo := ""
-
+func (to *repoOptions) GetBackendRepo() (backendOrg, backendRepo string, err error) {
 	// By default we collect data from .vexflow
 	if to.TriageRepo == DefaultBackendRepo {
 		org, _, err := github.ParseSlug(to.RepoSlug)

@@ -46,12 +46,10 @@ type managerImplementation interface {
 
 type defaultImplementation struct{}
 
+// CreateTriage creates a new triage in branch for the specified vulnerability.
+// First, the function will check the existing list and if there is already one
+// and not closed, it will return an error.
 func (di *defaultImplementation) CreateTriage(backend api.TriageBackend, branch *api.Branch, vuln *api.Vulnerability, existing []*api.Triage) (*api.Triage, error) {
-
-	// existing, err := mgr.GetVulnerabilityTriages(branch, vuln)
-	// if err != nil {
-	// 	return nil, fmt.Errorf("checking open triages: %w", err)
-	// }
 	for _, t := range existing {
 		if t.Vulnerability.ID == vuln.ID &&
 			t.Vulnerability.Component.Purl == vuln.ComponentPurl() &&
@@ -90,12 +88,10 @@ func (di *defaultImplementation) EnsureBranchClones(opts *Options, branches []*a
 
 		// Make a shallow clone of the repo to memory
 		if _, err := git.PlainClone(tmpDir, false, &git.CloneOptions{
-			URL: repoUrl,
-			ReferenceName: plumbing.ReferenceName(
-				plumbing.NewBranchReferenceName(branch.Name),
-			),
-			SingleBranch: true,
-			Depth:        1,
+			URL:           repoUrl,
+			ReferenceName: plumbing.NewBranchReferenceName(branch.Name),
+			SingleBranch:  true,
+			Depth:         1,
 			// RecurseSubmodules: 0,
 			// ShallowSubmodules: false,
 		}); err != nil {
@@ -126,7 +122,7 @@ func (di *defaultImplementation) dedupeVulns(vulns []*api.Vulnerability) []*api.
 			aliases = append(aliases, id)
 		}
 		for _, i := range v.Aliases {
-			if strings.HasPrefix("CVE-", id) {
+			if strings.HasPrefix(id, "CVE-") {
 				id = i
 			}
 			if !slices.Contains(aliases, i) {
@@ -171,10 +167,7 @@ func (di *defaultImplementation) ListBranchTriages(backend api.TriageBackend, br
 	return triages, nil
 }
 
-func (di *defaultImplementation) ClassifyTriages(triages []*api.Triage) ([]*api.Triage, []*api.Triage, []*api.Triage) {
-	// Classify the triages depending on their status
-	var waitAssessment, waitStatement, waitClose []*api.Triage
-
+func (di *defaultImplementation) ClassifyTriages(triages []*api.Triage) (waitAssessment, waitStatement, waitClose []*api.Triage) {
 	for _, t := range triages {
 		if t.Status == api.StatusClosed {
 			continue
@@ -194,6 +187,7 @@ func (di *defaultImplementation) ClassifyTriages(triages []*api.Triage) ([]*api.
 	}
 	return waitAssessment, waitStatement, waitClose
 }
+
 func (di *defaultImplementation) UpdateTriages([]*api.Triage, []*api.Triage) error {
 	return nil
 }

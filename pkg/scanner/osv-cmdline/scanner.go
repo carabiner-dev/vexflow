@@ -16,8 +16,7 @@ func New() *Scanner {
 	return &Scanner{}
 }
 
-type Scanner struct {
-}
+type Scanner struct{}
 
 func (s *Scanner) GetBranchVulnerabilities(branch *api.Branch) ([]*api.Vulnerability, error) {
 	return s.scanBranch(branch)
@@ -53,11 +52,11 @@ func processOSVreport(data string) ([]*api.Vulnerability, error) {
 				return nil, fmt.Errorf("error creating package")
 			}
 
-			for _, osvvuln := range p.Vulnerabilities {
+			for i := range p.Vulnerabilities {
 				// Build the aliases list
 				aliases := []string{}
 				id := ""
-				for _, alias := range osvvuln.Aliases {
+				for _, alias := range p.Vulnerabilities[i].Aliases {
 					if strings.HasPrefix(alias, "CVE-") && id == "" {
 						id = alias
 						continue
@@ -66,15 +65,15 @@ func processOSVreport(data string) ([]*api.Vulnerability, error) {
 				}
 
 				if id == "" {
-					id = osvvuln.Id
+					id = p.Vulnerabilities[i].Id
 				} else {
-					aliases = append(aliases, osvvuln.Id)
+					aliases = append(aliases, p.Vulnerabilities[i].Id)
 				}
 				ret = append(ret, &api.Vulnerability{
 					ID:        id,
 					Aliases:   aliases,
-					Summary:   osvvuln.Summary,
-					Details:   osvvuln.Details,
+					Summary:   p.Vulnerabilities[i].Summary,
+					Details:   p.Vulnerabilities[i].Details,
 					Component: pkg,
 				})
 			}

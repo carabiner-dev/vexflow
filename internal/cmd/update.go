@@ -28,7 +28,7 @@ type updateOptions struct {
 
 // Validates the options in context with arguments
 func (uo *updateOptions) Validate() error {
-	var errs = []error{}
+	errs := []error{}
 	if err := uo.repoOptions.Validate(); err != nil {
 		errs = append(errs, err)
 	}
@@ -51,10 +51,7 @@ func (to *updateOptions) AddFlags(cmd *cobra.Command) {
 	)
 }
 
-func (to *updateOptions) GetBackendRepo() (string, string, error) {
-	backendOrg := ""
-	backendRepo := ""
-
+func (to *updateOptions) GetBackendRepo() (backendOrg, backendRepo string, err error) {
 	// By default we collect data from .vexflow
 	if to.TriageRepo == DefaultBackendRepo {
 		org, _, err := github.ParseSlug(to.RepoSlug)

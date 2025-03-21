@@ -19,8 +19,7 @@ func New() *Scanner {
 	return &Scanner{}
 }
 
-type Scanner struct {
-}
+type Scanner struct{}
 
 func (s *Scanner) GetBranchVulnerabilities(branch *api.Branch) ([]*api.Vulnerability, error) {
 	logrus.Infof("Scanning %s", branch.ClonePath)
@@ -37,20 +36,9 @@ func (s *Scanner) GetBranchVulnerabilities(branch *api.Branch) ([]*api.Vulnerabi
 }
 
 func (s *Scanner) scanBranch(branch *api.Branch) (*models.VulnerabilityResults, error) {
-	// if !util.Exists(branch.ClonePath) {
-	// 	return nil, fmt.Errorf("unable to scan branch, local clone not found")
-	// }
 	logrus.Debugf("OSV: Scanning %s", branch.ClonePath)
 	scannerAction := osvscanner.ScannerActions{
-		// LockfilePaths:              context.StringSlice("lockfile"),
-		// SBOMPaths:                  context.StringSlice("sbom"),
-		// Recursive:                  context.Bool("recursive"),
-		// IncludeGitRoot:             context.Bool("include-git-root"),
-		// NoIgnore:                   context.Bool("no-ignore"),
-		// ConfigOverridePath:         context.String("config"),
 		DirectoryPaths: []string{branch.ClonePath},
-		// CallAnalysisStates:         callAnalysisStates,
-		// ExperimentalScannerActions: experimentalScannerActions,
 	}
 
 	vulnResult, err := osvscanner.DoScan(scannerAction)
@@ -63,17 +51,17 @@ func (s *Scanner) scanBranch(branch *api.Branch) (*models.VulnerabilityResults, 
 func (s *Scanner) ingestScanResults(results *models.VulnerabilityResults) ([]*api.Vulnerability, error) {
 	ret := []*api.Vulnerability{}
 	for _, result := range results.Results {
-		for _, pkgvulns := range result.Packages {
-			pkg, err := osvPackageToPackage(&pkgvulns.Package)
+		for i := range result.Packages {
+			pkg, err := osvPackageToPackage(&result.Packages[i].Package)
 			if err != nil {
 				return nil, fmt.Errorf("converting package: %w", err)
 			}
 
-			for _, osvvuln := range pkgvulns.Vulnerabilities {
+			for i := range result.Packages[i].Vulnerabilities {
 				// Build the aliases list
 				aliases := []string{}
 				id := ""
-				for _, alias := range osvvuln.Aliases {
+				for _, alias := range result.Packages[i].Vulnerabilities[i].Aliases {
 					if strings.HasPrefix(alias, "CVE-") && id == "" {
 						id = alias
 						continue
@@ -82,15 +70,15 @@ func (s *Scanner) ingestScanResults(results *models.VulnerabilityResults) ([]*ap
 				}
 
 				if id == "" {
-					id = osvvuln.ID
+					id = result.Packages[i].Vulnerabilities[i].ID
 				} else {
-					aliases = append(aliases, osvvuln.ID)
+					aliases = append(aliases, result.Packages[i].Vulnerabilities[i].ID)
 				}
 				ret = append(ret, &api.Vulnerability{
 					ID:        id,
 					Aliases:   aliases,
-					Summary:   osvvuln.Summary,
-					Details:   osvvuln.Details,
+					Summary:   result.Packages[i].Vulnerabilities[i].Summary,
+					Details:   result.Packages[i].Vulnerabilities[i].Details,
 					Component: pkg,
 				})
 			}

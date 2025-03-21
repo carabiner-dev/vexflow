@@ -30,8 +30,8 @@ func (p *Publisher) PublishDocument(doc *vex.VEX) (*api.StatementNotice, error) 
 	}
 
 	products := []string{}
-	for _, s := range doc.Statements {
-		for _, p := range s.Products {
+	for i := range doc.Statements {
+		for _, p := range doc.Statements[i].Products {
 			if j, ok := p.Hashes[vex.SHA256]; ok {
 				if !slices.Contains(products, string(j)) {
 					products = append(products, string(j))

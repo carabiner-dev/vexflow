@@ -19,17 +19,12 @@ import (
 )
 
 type scanOptions struct {
-	// repoOptions
 	ClonePath string
 }
 
 // Validates the options in context with arguments
 func (so *scanOptions) Validate() error {
-	var errs = []error{}
-	// if err := uo.repoOptions.Validate(); err != nil {
-	// 	errs = append(errs, err)
-	// }
-
+	errs := []error{}
 	if so.ClonePath == "" {
 		errs = append(errs, errors.New("path to code directory not set"))
 	}
@@ -39,7 +34,6 @@ func (so *scanOptions) Validate() error {
 
 // AddFlags adds the subcommands flags
 func (so *scanOptions) AddFlags(cmd *cobra.Command) {
-	// 	so.repoOptions.AddFlags(cmd)
 	cmd.PersistentFlags().StringVar(
 		&so.ClonePath, "clone-path", ".", "path top the codebase to scan",
 	)
@@ -77,8 +71,6 @@ func addScan(parentCmd *cobra.Command) {
 			}
 
 			branch := &api.Branch{
-				// Repository: fmt.Sprintf("github.com/%s/%s", org, repo),
-				// Name:       opts.BranchName,
 				ClonePath: opts.ClonePath,
 			}
 
@@ -102,8 +94,6 @@ func addScan(parentCmd *cobra.Command) {
 				}).
 				Headers("VULNERABILITY", "ALIASES", "COMPONENT")
 
-			// You can also add tables row-by-row
-			//t.Row("English", "You look absolutely fabulous.", "How's it going?")
 			for _, vuln := range vulns {
 				t.Row(
 					vuln.ID,

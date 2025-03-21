@@ -24,7 +24,7 @@ var (
 	lightGray = lipgloss.Color("241")
 
 	headerStyle  = lipgloss.NewStyle().Foreground(purple).Bold(true).Align(lipgloss.Center)
-	cellStyle    = lipgloss.NewStyle().Padding(0, 3) //.Width(14)
+	cellStyle    = lipgloss.NewStyle().Padding(0, 3)
 	oddRowStyle  = cellStyle.Foreground(gray)
 	evenRowStyle = cellStyle.Foreground(lightGray)
 )
@@ -35,7 +35,7 @@ type lsOptions struct {
 
 // Validates the options in context with arguments
 func (lo *lsOptions) Validate() error {
-	var errs = []error{}
+	errs := []error{}
 	if err := lo.repoOptions.Validate(); err != nil {
 		errs = append(errs, err)
 	}
@@ -46,7 +46,6 @@ func (lo *lsOptions) Validate() error {
 // AddFlags adds the subcommands flags
 func (lo *lsOptions) AddFlags(cmd *cobra.Command) {
 	lo.repoOptions.AddFlags(cmd)
-
 }
 
 func addLs(parentCmd *cobra.Command) {
@@ -120,8 +119,6 @@ func addLs(parentCmd *cobra.Command) {
 				}).
 				Headers("REPOSITORY", "BRANCH", "VULNERABILITY", "STATUS")
 
-			// You can also add tables row-by-row
-			//t.Row("English", "You look absolutely fabulous.", "How's it going?")
 			for _, triage := range triages {
 				t.Row(
 					triage.Branch.Repository, triage.Branch.Name,

@@ -26,7 +26,7 @@ type triageOptions struct {
 
 // Validates the options in context with arguments
 func (to *triageOptions) Validate() error {
-	var errs = []error{}
+	errs := []error{}
 	if err := to.repoOptions.Validate(); err != nil {
 		errs = append(errs, err)
 	}
