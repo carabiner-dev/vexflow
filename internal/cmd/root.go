@@ -42,6 +42,7 @@ func Execute() {
 	addTriage(rootCmd)
 	addUpdate(rootCmd)
 	addScan(rootCmd)
+	addLs(rootCmd)
 	rootCmd.AddCommand(version.WithFont("doom"))
 
 	if err := rootCmd.Execute(); err != nil {

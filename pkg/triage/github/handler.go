@@ -100,6 +100,12 @@ func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, e
 		// Assign the issue number to the triage object
 		embedded.BackendID = fmt.Sprintf("%d", i.GetNumber())
 
+		if embedded.Triage.Status != api.StatusClosed {
+			if err := th.ReadTriageStatus(&embedded.Triage); err != nil {
+				return nil, err
+			}
+		}
+
 		if embedded.BranchID == branch.Identifier() {
 			ret = append(ret, &embedded.Triage)
 		}
@@ -107,6 +113,7 @@ func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, e
 	return ret, nil
 }
 
+// extractEmbeddedMessage reads the data embedded by vexflow into the issue body
 func extractEmbeddedMessage(issue *gogithub.Issue) (*EmbeddedMessage, error) {
 	body := issue.GetBody()
 	if !strings.Contains(body, bodySeparator) {
@@ -193,6 +200,7 @@ func (th *TriageHandler) CreateTriage(branch *api.Branch, vuln *api.Vulnerabilit
 	}, nil
 }
 
+// ReadTriageStatus enriches a triage with data from the comment history
 func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 	nr, err := getIssueNumber(t)
 	if err != nil {
@@ -211,6 +219,8 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 	if err != nil {
 		return fmt.Errorf("fetching issue data: %w", err)
 	}
+
+	logrus.Infof("processing %d comments", len(comments))
 
 	currentStatus := api.StatusWaitingForAsessment
 	var lastSlashcommand *api.SlashCommand

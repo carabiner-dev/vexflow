@@ -132,10 +132,15 @@ func (mgr *Manager) GetVulnerabilityTriages(branch *api.Branch, vuln *api.Vulner
 			triagePurl = t.Vulnerability.Component.Purl
 		}
 
+		if err := mgr.triageBackend.ReadTriageStatus(t); err != nil {
+			return nil, err
+		}
+
 		if t.Vulnerability.HasId(vuln.ID) && triagePurl == vulnPurl {
 			ret = append(ret, t)
 		}
 	}
+
 	return ret, nil
 }
 
