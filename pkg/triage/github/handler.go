@@ -387,3 +387,19 @@ func (th *TriageHandler) AppendPublishNotice(t *api.Triage, notice *api.Statemen
 	// Done
 	return nil
 }
+
+// CloseTriage translates to closing the issue on github.
+func (th *TriageHandler) CloseTriage(t *api.Triage) error {
+	nr, err := getIssueNumber(t)
+	if err != nil {
+		return err
+	}
+	if _, _, err := th.client.Issues.Edit(context.Background(), th.Options.Org, th.Options.Repo, nr, &gogithub.IssueRequest{
+		State:       gogithub.String("closed"),
+		StateReason: gogithub.String("completed"),
+	}); err != nil {
+		return fmt.Errorf("closing issue #%d: #w", err)
+	}
+	t.Status = api.StatusClosed
+	return nil
+}
