@@ -29,8 +29,8 @@ func (di *defaultImplementation) EnsureBranchClones([]*api.Branch) error {
 	return nil
 }
 
-func (di *defaultImplementation) ScanVulnerabilities(api.Scanner, *api.Branch) ([]*api.Vulnerability, error) {
-	return nil, nil
+func (di *defaultImplementation) ScanVulnerabilities(scanner api.Scanner, branch *api.Branch) ([]*api.Vulnerability, error) {
+	return scanner.GetBranchVulnerabilities(branch)
 }
 
 func (di *defaultImplementation) ListBranchTriages(*api.Branch) ([]*api.Triage, error) {
@@ -91,7 +91,6 @@ func (di *defaultImplementation) TriagesToVexDocument(triages []*api.Triage) (*v
 		statements = append(statements, s)
 	}
 
-	// Temp.
 	doc := vex.New()
 	doc.ID = "urn:uuid:" + uuid.NewString()
 	doc.Statements = statements

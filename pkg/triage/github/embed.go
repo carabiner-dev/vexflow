@@ -91,7 +91,7 @@ __Example Comment:__
 > `+"`"+`/not_affected:inline_mitigations_already_exist`+"`"+`
 >
 > The released artifacts have been patched with a custom fix, the vulnerability
-> Is no longer present.
+> is no longer present.
 
 ### 🏷️ Affected
 

@@ -175,10 +175,31 @@ func (mgr *Manager) UpdateBranchFlow(branch *api.Branch) error {
 		return fmt.Errorf("publishing statements: %w", err)
 	}
 
+	if err := mgr.CloseOpenTriages(waitClose); err != nil {
+		return fmt.Errorf("closing completed triages: %w", err)
+	}
+
 	return nil
 }
 
+func (mgr *Manager) CloseOpenTriages(triages []*api.Triage) error {
+	var errs = []error{}
+	for _, t := range triages {
+		if err := mgr.triageBackend.CloseTriage(t); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
+}
+
+// PublishStatements generates the VEX documents for the open triages
+// and releases them using the configured publisher.
 func (mgr *Manager) PublishStatements(triages []*api.Triage) error {
+	// No triages, noop.
+	if len(triages) == 0 {
+		return nil
+	}
+
 	doc, err := mgr.impl.TriagesToVexDocument(triages)
 	if err != nil {
 		return fmt.Errorf("generating VEX document: %w", err)
@@ -196,8 +217,18 @@ func (mgr *Manager) PublishStatements(triages []*api.Triage) error {
 	for _, t := range triages {
 		if err := mgr.triageBackend.AppendPublishNotice(t, notice); err != nil {
 			errs = append(errs, err)
+			continue
+		}
+
+		// Close the triage now that the notice is published
+		if err := mgr.triageBackend.CloseTriage(t); err != nil {
+			errs = append(errs, err)
 		}
 	}
 
 	return errors.Join(errs...)
+}
+
+func (m *Manager) ScanBranchCode(branch *api.Branch) ([]*api.Vulnerability, error) {
+	return m.impl.ScanVulnerabilities(m.scanner, branch)
 }
