@@ -4,6 +4,7 @@
 package osv
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -53,7 +54,7 @@ func (s *Scanner) scanBranch(branch *api.Branch) (*models.VulnerabilityResults, 
 	}
 
 	vulnResult, err := osvscanner.DoScan(scannerAction)
-	if err != nil {
+	if err != nil && !errors.Is(err, osvscanner.ErrVulnerabilitiesFound) {
 		return nil, fmt.Errorf("scanning source: %w", err)
 	}
 	return &vulnResult, nil

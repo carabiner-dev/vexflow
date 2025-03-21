@@ -87,6 +87,11 @@ func addScan(parentCmd *cobra.Command) {
 
 			logrus.Infof("Scan de %s", branch.ClonePath)
 
+			for _, v := range vulns {
+				fmt.Println(v.ID, v.ComponentPurl())
+				fmt.Printf("%+v\n", *v)
+			}
+
 			fmt.Printf("%+v", vulns)
 
 			return nil
