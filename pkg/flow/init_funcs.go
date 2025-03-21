@@ -40,3 +40,10 @@ func WithPublisher(p api.VexPublisher) initFunc {
 		return nil
 	}
 }
+
+func WithSSH(use bool) initFunc {
+	return func(m *Manager) error {
+		m.Options.UseSSH = use
+		return nil
+	}
+}

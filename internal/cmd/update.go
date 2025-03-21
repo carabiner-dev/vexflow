@@ -22,6 +22,7 @@ import (
 
 type updateOptions struct {
 	repoOptions
+	scan        bool
 	publishPath string
 }
 
@@ -44,6 +45,9 @@ func (to *updateOptions) AddFlags(cmd *cobra.Command) {
 	to.repoOptions.AddFlags(cmd)
 	cmd.PersistentFlags().StringVar(
 		&to.publishPath, "publish-path", "file:"+filepath.Join(os.TempDir(), "vexflow"), "location to publish VEX documents",
+	)
+	cmd.PersistentFlags().BoolVar(
+		&to.scan, "scan", true, "clone the repo and scan for new vulnerabilities",
 	)
 }
 
@@ -102,8 +106,10 @@ func addUpdate(parentCmd *cobra.Command) {
 			backend.Options.Org = backendOrg
 			backend.Options.Repo = backendRepo
 
-			// Create the publisher, for now we only support the dir publisher
+			// Create the statement publisher:
 			var publisher api.VexPublisher
+
+			// For now we only support the dir publisher
 			if strings.HasPrefix(opts.publishPath, "file:") {
 				publisher = &dir.Publisher{
 					Path: strings.TrimPrefix(opts.publishPath, "file:"),
@@ -112,10 +118,12 @@ func addUpdate(parentCmd *cobra.Command) {
 				return fmt.Errorf("no handler for publish location")
 			}
 
+			// Create the flow manager
 			mgr, err := flow.New(
 				flow.WithBackend(backend),
 				flow.WithScanner(osv.New()),
 				flow.WithPublisher(publisher),
+				flow.WithSSH(opts.UseSSH),
 			)
 			if err != nil {
 				return err
@@ -131,11 +139,11 @@ func addUpdate(parentCmd *cobra.Command) {
 				Name:       opts.BranchName,
 			}
 
-			if err := mgr.UpdateBranchFlow(branch); err != nil {
-				return err
+			// Only clone and scan if set in the options
+			if opts.scan {
+				return mgr.UpdateBranchFlowWithScan(branch)
 			}
-
-			return nil
+			return mgr.UpdateBranchFlow(branch)
 		},
 	}
 	opts.AddFlags(triageCommand)

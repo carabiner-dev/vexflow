@@ -91,13 +91,18 @@ func addLs(parentCmd *cobra.Command) {
 			if err != nil {
 				return err
 			}
-
-			triages, err := mgr.ListOpenBranchTriages(&api.Branch{
+			branch := &api.Branch{
 				Repository: fmt.Sprintf("github.com/%s/%s", org, repo),
 				Name:       opts.BranchName,
-			})
+			}
+			triages, err := mgr.ListOpenBranchTriages(branch)
 			if err != nil {
 				return err
+			}
+
+			if len(triages) == 0 {
+				fmt.Printf("\n✅ No open triages found in %s\n", branch.Identifier())
+				return nil
 			}
 
 			t := table.New().

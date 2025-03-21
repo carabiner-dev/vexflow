@@ -40,7 +40,7 @@ func (s *Scanner) scanBranch(branch *api.Branch) (*models.VulnerabilityResults, 
 	// if !util.Exists(branch.ClonePath) {
 	// 	return nil, fmt.Errorf("unable to scan branch, local clone not found")
 	// }
-	logrus.Infof("Scanning %s", branch.ClonePath)
+	logrus.Debugf("OSV: Scanning %s", branch.ClonePath)
 	scannerAction := osvscanner.ScannerActions{
 		// LockfilePaths:              context.StringSlice("lockfile"),
 		// SBOMPaths:                  context.StringSlice("sbom"),

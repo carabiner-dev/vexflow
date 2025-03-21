@@ -29,9 +29,14 @@ func New(fn ...initFunc) (*Manager, error) {
 	return manager, nil
 }
 
+type Options struct {
+	UseSSH bool
+}
+
 // Manager is the main object. It handles the lifecycle of a vulnerability's
 // impact on a project
 type Manager struct {
+	Options       Options
 	impl          managerImplementation
 	Branches      []*api.Branch
 	scanner       api.Scanner
@@ -39,32 +44,36 @@ type Manager struct {
 	publisher     api.VexPublisher
 }
 
+// CreateTriage opens a new triage process a vulnerability in the specified branch
 func (mgr *Manager) CreateTriage(branch *api.Branch, vuln *api.Vulnerability) (*api.Triage, error) {
+	// Fetch the list of existing triages
 	existing, err := mgr.GetVulnerabilityTriages(branch, vuln)
 	if err != nil {
 		return nil, fmt.Errorf("checking open triages: %w", err)
 	}
 
-	for _, t := range existing {
-		if t.Status != api.StatusClosed {
-			return nil, fmt.Errorf("unable to create a new triage process for %q, there is one already underway", vuln.ID)
+	return mgr.impl.CreateTriage(mgr.triageBackend, branch, vuln, existing)
+}
+
+// deleteTempClones removes the temporary data from the cloned branches
+func deleteTempClones(branches []*api.Branch) {
+	for _, b := range branches {
+		if b.ClonePath != "" {
+			if err := os.RemoveAll(b.ClonePath); err != nil {
+				logrus.Error(err)
+			}
 		}
 	}
-
-	triage, err := mgr.triageBackend.CreateTriage(branch, vuln)
-	if err != nil {
-		return nil, fmt.Errorf("opening triage process: %w", err)
-	}
-	return triage, nil
 }
 
 // UpdateBranchFlowWithScan updates the flows open at the repository and creates
 // new ones based on the latest vulnerability reports available.
 func (mgr *Manager) UpdateBranchFlowWithScan(branch *api.Branch) error {
 	// Ensure clones
-	if err := mgr.impl.EnsureBranchClones(mgr.Branches); err != nil {
+	if err := mgr.impl.EnsureBranchClones(&mgr.Options, []*api.Branch{branch}); err != nil {
 		return fmt.Errorf("ensuring up to date clones: %w", err)
 	}
+	defer deleteTempClones([]*api.Branch{branch})
 
 	// Extract current vulnerabilities
 	vulns, err := mgr.impl.ScanVulnerabilities(mgr.scanner, branch)
@@ -72,23 +81,44 @@ func (mgr *Manager) UpdateBranchFlowWithScan(branch *api.Branch) error {
 		return fmt.Errorf("checking for vulnerabilities: %w", err)
 	}
 
-	triages, err := mgr.impl.ListBranchTriages(branch)
+	logrus.Infof("%d vulnerabilities found in branch", len(vulns))
+
+	triages, err := mgr.impl.ListBranchTriages(mgr.triageBackend, branch)
 	if err != nil {
 		return fmt.Errorf("listing open triage processes: %w", err)
 	}
 
-	missing, opens, closed, err := mgr.impl.ClassifyTriages(vulns, triages)
-	if err != nil {
-		return fmt.Errorf("classifying triage processes: %w", err)
-	}
-
-	if err := mgr.impl.UpdateTriages(opens, closed); err != nil {
-		return fmt.Errorf("updating ongoing triage processes: %w", err)
+	if len(triages) == 0 {
+		logrus.Error("0 triages found. This should not happen")
+		os.Exit(0)
 	}
 
 	// Update the open triage cases
-	if _, err := mgr.impl.OpenNewTriages(branch, missing); err != nil {
+	new, err := mgr.impl.OpenNewTriages(mgr.triageBackend, branch, vulns, triages)
+	if err != nil {
 		return fmt.Errorf("opening new triage processes: %w", err)
+	}
+
+	// FIXME(puerco): Here any vulns that disappeared that have a triage
+	// should be closed.
+
+	logrus.Infof("Created %d new triage processes for new vulnerabilities", len(new))
+
+	waitAssessment, waitStatement, waitClose := mgr.impl.ClassifyTriages(triages)
+	logrus.Infof(
+		"Triage Status: [%d+%d To Assess] [%d To VEX] [%d To Close]",
+		len(waitAssessment), len(new), len(waitStatement), len(waitClose),
+	)
+
+	// Append the new triages to the list of those waiting for assessment
+	waitAssessment = append(waitAssessment, new...)
+
+	if err := mgr.PublishStatements(waitStatement); err != nil {
+		return fmt.Errorf("publishing statements: %w", err)
+	}
+
+	if err := mgr.CloseOpenTriages(waitClose); err != nil {
+		return fmt.Errorf("closing completed triages: %w", err)
 	}
 
 	return nil
@@ -151,30 +181,11 @@ func (mgr *Manager) UpdateBranchFlow(branch *api.Branch) error {
 	}
 
 	// Classify the triages depending on their status
-	var waitClose, waitStatement, waitAssessment []*api.Triage
-
-	for _, t := range triages {
-		if t.Status == api.StatusClosed {
-			continue
-		}
-
-		// Update the triage details
-		if err := mgr.triageBackend.ReadTriageStatus(t); err != nil {
-			return fmt.Errorf("updating triage from API: %w", err)
-		}
-
-		switch t.Status {
-		case api.StatusWaitingForAsessment:
-			logrus.Infof("%s (%s) is waiting for maintainer assessment", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
-			waitAssessment = append(waitAssessment, t)
-		case api.StatusWaitingForStatement:
-			logrus.Infof("%s (%s) is waiting for satatement to be published", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
-			waitStatement = append(waitStatement, t)
-		case api.StatusWaitingForClose:
-			logrus.Infof("%s (%s) is waiting for issue to be closed", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
-			waitClose = append(waitClose, t)
-		}
-	}
+	waitClose, waitStatement, waitAssessment := mgr.impl.ClassifyTriages(triages)
+	logrus.Infof(
+		"Triage Status: [%d To Assess] [%d To VEX] [%d To Close]",
+		len(waitAssessment), len(waitStatement), len(waitClose),
+	)
 
 	if err := mgr.PublishStatements(waitStatement); err != nil {
 		return fmt.Errorf("publishing statements: %w", err)

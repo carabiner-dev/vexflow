@@ -220,7 +220,7 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 		return fmt.Errorf("fetching issue data: %w", err)
 	}
 
-	logrus.Infof("processing %d comments", len(comments))
+	logrus.Debugf("processing %d comments from issue %d", len(comments), nr)
 
 	currentStatus := api.StatusWaitingForAsessment
 	var lastSlashcommand *api.SlashCommand

@@ -4,22 +4,40 @@
 package flow
 
 import (
+	"fmt"
+	"os"
 	"slices"
 	"strings"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/google/uuid"
 	"github.com/openvex/go-vex/pkg/vex"
+	"github.com/sirupsen/logrus"
 )
 
 type managerImplementation interface {
-	EnsureBranchClones([]*api.Branch) error
+	// CreateTriage starts a new triage. It will return an error if there is already
+	// an equivalent triage not closed in the existing list.
+	CreateTriage(api.TriageBackend, *api.Branch, *api.Vulnerability, []*api.Triage) (*api.Triage, error)
+
+	// EnsureBranchClones reads a list of branches and ensures there is a local
+	// clone of them.
+	EnsureBranchClones(*Options, []*api.Branch) error
+
+	// Scan vulnerabilities runs the configured scanner in the branch clone.
+	// This function errors if the scan clone does not exist.
 	ScanVulnerabilities(api.Scanner, *api.Branch) ([]*api.Vulnerability, error)
-	ListBranchTriages(*api.Branch) ([]*api.Triage, error)
-	ClassifyTriages([]*api.Vulnerability, []*api.Triage) ([]*api.Vulnerability, []*api.Triage, []*api.Triage, error)
+	ListBranchTriages(api.TriageBackend, *api.Branch) ([]*api.Triage, error)
+	ClassifyTriages([]*api.Triage) ([]*api.Triage, []*api.Triage, []*api.Triage)
 	UpdateTriages([]*api.Triage, []*api.Triage) error
-	// OpenNewTriages(*api.Branch, []*api.Vulnerability) ([]*api.Triage, error)
-	OpenNewTriages(*api.Branch, []*api.Vulnerability) ([]*api.Triage, error)
+
+	// OpenNewTriages is the internal method used to create new triages. As opposed
+	// to CreateTriage,  OpenNewTriages is used for autmated creation from scans
+	// which means that it will never open a new triage process if one was opened
+	// at any point.
+	OpenNewTriages(api.TriageBackend, *api.Branch, []*api.Vulnerability, []*api.Triage) ([]*api.Triage, error)
 
 	// TriagesToVexDocument converts a list of triages needing a statement to
 	// a VEX document ready to publish to an attestations store.
@@ -28,10 +46,69 @@ type managerImplementation interface {
 
 type defaultImplementation struct{}
 
-func (di *defaultImplementation) EnsureBranchClones([]*api.Branch) error {
+func (di *defaultImplementation) CreateTriage(backend api.TriageBackend, branch *api.Branch, vuln *api.Vulnerability, existing []*api.Triage) (*api.Triage, error) {
+
+	// existing, err := mgr.GetVulnerabilityTriages(branch, vuln)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("checking open triages: %w", err)
+	// }
+	for _, t := range existing {
+		if t.Vulnerability.ID == vuln.ID &&
+			t.Vulnerability.Component.Purl == vuln.ComponentPurl() &&
+			t.Branch.Identifier() == branch.Identifier() {
+			continue
+		}
+		if t.Status != api.StatusClosed {
+			return nil, fmt.Errorf("unable to create a new triage process for %q, there is one already underway", vuln.ID)
+		}
+	}
+
+	triage, err := backend.CreateTriage(branch, vuln)
+	if err != nil {
+		return nil, fmt.Errorf("opening triage process: %w", err)
+	}
+	return triage, nil
+}
+
+// EnsureBranchClones clones the repository and places HEAD at the last commit
+// in the branch. For now, we can only clone fresh to a tmp directory. In the future
+// we may support existing clones.
+func (di *defaultImplementation) EnsureBranchClones(opts *Options, branches []*api.Branch) error {
+	for _, branch := range branches {
+		tmpDir, err := os.MkdirTemp("", "vexflow-tmpclone-")
+		if err != nil {
+			return fmt.Errorf("cloning repository: %w", err)
+		}
+		logrus.Infof("Cloning repo to %s", tmpDir)
+
+		repoUrl := branch.Repository
+		if opts.UseSSH {
+			repoUrl = "git@github.com:" + strings.TrimPrefix(repoUrl, "github.com/")
+		} else {
+			repoUrl = "https://" + repoUrl
+		}
+
+		// Make a shallow clone of the repo to memory
+		if _, err := git.PlainClone(tmpDir, false, &git.CloneOptions{
+			URL: repoUrl,
+			ReferenceName: plumbing.ReferenceName(
+				plumbing.NewBranchReferenceName(branch.Name),
+			),
+			SingleBranch: true,
+			Depth:        1,
+			// RecurseSubmodules: 0,
+			// ShallowSubmodules: false,
+		}); err != nil {
+			return fmt.Errorf("cloning %q: %w", repoUrl, err)
+		}
+		branch.ClonePath = tmpDir
+	}
+
 	return nil
 }
 
+// ScanVulnerabilities scans the local clone of a branch and returns any found
+// vulnerabilities.
 func (di *defaultImplementation) ScanVulnerabilities(scanner api.Scanner, branch *api.Branch) ([]*api.Vulnerability, error) {
 	vulns, err := scanner.GetBranchVulnerabilities(branch)
 	if err != nil {
@@ -84,20 +161,68 @@ func (di *defaultImplementation) dedupeVulns(vulns []*api.Vulnerability) []*api.
 	return ret
 }
 
-func (di *defaultImplementation) ListBranchTriages(*api.Branch) ([]*api.Triage, error) {
-	return nil, nil
+// ListBranchTriages returns all triages in the branch. For now this are all but
+// at some point this will implement a cut out date to avoid reading all data.
+func (di *defaultImplementation) ListBranchTriages(backend api.TriageBackend, branch *api.Branch) ([]*api.Triage, error) {
+	triages, err := backend.ListBranchTriages(branch)
+	if err != nil {
+		return nil, err
+	}
+	return triages, nil
 }
 
-func (di *defaultImplementation) ClassifyTriages([]*api.Vulnerability, []*api.Triage) ([]*api.Vulnerability, []*api.Triage, []*api.Triage, error) {
-	return nil, nil, nil, nil
+func (di *defaultImplementation) ClassifyTriages(triages []*api.Triage) ([]*api.Triage, []*api.Triage, []*api.Triage) {
+	// Classify the triages depending on their status
+	var waitAssessment, waitStatement, waitClose []*api.Triage
+
+	for _, t := range triages {
+		if t.Status == api.StatusClosed {
+			continue
+		}
+
+		switch t.Status {
+		case api.StatusWaitingForAsessment:
+			logrus.Infof("%s (%s) is waiting for maintainer assessment", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
+			waitAssessment = append(waitAssessment, t)
+		case api.StatusWaitingForStatement:
+			logrus.Infof("%s (%s) is waiting for satatement to be published", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
+			waitStatement = append(waitStatement, t)
+		case api.StatusWaitingForClose:
+			logrus.Infof("%s (%s) is waiting for issue to be closed", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
+			waitClose = append(waitClose, t)
+		}
+	}
+	return waitAssessment, waitStatement, waitClose
 }
 func (di *defaultImplementation) UpdateTriages([]*api.Triage, []*api.Triage) error {
 	return nil
 }
 
 // OpenNewTriages(*api.Branch, []*api.Vulnerability) ([]*api.Triage, error)
-func (di *defaultImplementation) OpenNewTriages(*api.Branch, []*api.Vulnerability) ([]*api.Triage, error) {
-	return nil, nil
+func (di *defaultImplementation) OpenNewTriages(backend api.TriageBackend, branch *api.Branch, vulns []*api.Vulnerability, existing []*api.Triage) ([]*api.Triage, error) {
+	newTriages := []*api.Triage{}
+
+	if len(vulns) == 0 {
+		return newTriages, nil
+	}
+	// First, index the existing triage to find if there is one open alread
+	vulnIndex := map[string]struct{}{}
+	for _, t := range existing {
+		key := fmt.Sprintf("%s::%s", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
+		vulnIndex[key] = struct{}{}
+	}
+
+	for _, v := range vulns {
+		if _, ok := vulnIndex[fmt.Sprintf("%s::%s", v.ID, v.ComponentPurl())]; !ok {
+			// Create the new triage
+			t, err := di.CreateTriage(backend, branch, v, existing)
+			if err != nil {
+				return nil, fmt.Errorf("creating triage for %s: %w", v.ID, err)
+			}
+			newTriages = append(newTriages, t)
+		}
+	}
+	return newTriages, nil
 }
 
 func (di *defaultImplementation) TriagesToVexDocument(triages []*api.Triage) (*vex.VEX, error) {

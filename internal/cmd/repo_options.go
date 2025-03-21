@@ -15,6 +15,7 @@ type repoOptions struct {
 	BranchName string
 	RepoSlug   string
 	TriageRepo string
+	UseSSH     bool
 }
 
 func (to *repoOptions) GetBackendRepo() (string, string, error) {
@@ -64,5 +65,8 @@ func (to *repoOptions) AddFlags(cmd *cobra.Command) {
 
 	cmd.PersistentFlags().StringVar(
 		&to.TriageRepo, "triage-repo", DefaultBackendRepo, "backend repository to store triage data (slug org/repo)",
+	)
+	cmd.PersistentFlags().BoolVar(
+		&to.UseSSH, "ssh", false, "use SSH when cloning",
 	)
 }
