@@ -33,4 +33,5 @@ type TriageBackend interface {
 	ReadTriageStatus(*Triage) error
 	AppendPublishNotice(*Triage, *StatementNotice) error
 	CloseTriage(*Triage) error
+	CloseTriageWithMessage(*Triage, string) error
 }

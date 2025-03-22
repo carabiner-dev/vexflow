@@ -105,6 +105,10 @@ func (mgr *Manager) UpdateBranchFlowWithScan(branch *api.Branch) error {
 		len(waitAssessment), len(newTriages), len(waitStatement), len(waitClose),
 	)
 
+	if err := mgr.impl.CloseRedundantTriages(mgr.triageBackend, vulns, waitAssessment); err != nil {
+		return fmt.Errorf("closing redundant triages: %w", err)
+	}
+
 	if err := mgr.PublishStatements(waitStatement); err != nil {
 		return fmt.Errorf("publishing statements: %w", err)
 	}

@@ -42,6 +42,10 @@ type managerImplementation interface {
 	// TriagesToVexDocument converts a list of triages needing a statement to
 	// a VEX document ready to publish to an attestations store.
 	TriagesToVexDocument([]*api.Triage) (*vex.VEX, error)
+
+	// CloseRedundantTriages closes all triages for which a vulnerability is no
+	// longer present, usually because the affected components were updated in the branch.
+	CloseRedundantTriages(api.TriageBackend, []*api.Vulnerability, []*api.Triage) error
 }
 
 type defaultImplementation struct{}
@@ -265,4 +269,33 @@ func (di *defaultImplementation) TriagesToVexDocument(triages []*api.Triage) (*v
 	doc.ID = "urn:uuid:" + uuid.NewString()
 	doc.Statements = statements
 	return &doc, nil
+}
+
+// CloseRedundantTriages closes all triages for which a vulnerability is no
+// longer present, usually because the affected components were updated in the branch.
+func (di *defaultImplementation) CloseRedundantTriages(backend api.TriageBackend, vulns []*api.Vulnerability, triages []*api.Triage) error {
+	// Index the vulnerabilities and components
+	vulnIndex := map[string]struct{}{}
+	for _, v := range vulns {
+		vulnIndex[fmt.Sprintf("%s::%s", v.ID, v.ComponentPurl())] = struct{}{}
+	}
+
+	// OK, now let's close all the triages for other vulns
+	for _, t := range triages {
+		// If the vulns is in the index, it is still in the codebase
+		if _, ok := vulnIndex[fmt.Sprintf("%s::%s", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())]; ok {
+			continue
+		}
+
+		// Close the triage, posting a notice in the issue.
+		if err := backend.CloseTriageWithMessage(
+			t, fmt.Sprintf(
+				"Latest scan of %s shows it is no longer in the %s branch. Closing.",
+				t.Vulnerability.ID, t.Branch.Identifier(),
+			),
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }

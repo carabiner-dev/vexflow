@@ -412,3 +412,22 @@ func (th *TriageHandler) CloseTriage(t *api.Triage) error {
 	t.Status = api.StatusClosed
 	return nil
 }
+
+// CloseTriageWithMessage closes an open triage leaving a comment before doing so.
+func (th *TriageHandler) CloseTriageWithMessage(t *api.Triage, msg string) error {
+	nr, err := getIssueNumber(t)
+	if err != nil {
+		return err
+	}
+	// Publish comment to issue
+	if _, _, err := th.client.Issues.CreateComment(
+		context.Background(), th.Options.Org, th.Options.Repo, nr,
+		&gogithub.IssueComment{
+			Body: gogithub.String(msg),
+		},
+	); err != nil {
+		return fmt.Errorf("posting publishing notice comment: %w", err)
+	}
+
+	return th.CloseTriage(t)
+}
