@@ -126,7 +126,7 @@ func (di *defaultImplementation) dedupeVulns(vulns []*api.Vulnerability) []*api.
 			aliases = append(aliases, id)
 		}
 		for _, i := range v.Aliases {
-			if strings.HasPrefix(id, "CVE-") {
+			if strings.HasPrefix(i, "CVE-") {
 				id = i
 			}
 			if !slices.Contains(aliases, i) {
@@ -157,7 +157,6 @@ func (di *defaultImplementation) dedupeVulns(vulns []*api.Vulnerability) []*api.
 	for _, v := range index {
 		ret = append(ret, v)
 	}
-
 	return ret
 }
 
@@ -196,7 +195,8 @@ func (di *defaultImplementation) UpdateTriages([]*api.Triage, []*api.Triage) err
 	return nil
 }
 
-// OpenNewTriages(*api.Branch, []*api.Vulnerability) ([]*api.Triage, error)
+// OpenNewTriages opens new triage processes for vulnerabilities found in the
+// branch that don't have one already underway.
 func (di *defaultImplementation) OpenNewTriages(backend api.TriageBackend, branch *api.Branch, vulns []*api.Vulnerability, existing []*api.Triage) ([]*api.Triage, error) {
 	newTriages := []*api.Triage{}
 
