@@ -4,17 +4,25 @@
 package flow
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"slices"
 	"strings"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/google/uuid"
 	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
+
+	gointoto "github.com/in-toto/attestation/go/v1"
+
+	"github.com/carabiner-dev/ampel/pkg/attestation"
+	"github.com/carabiner-dev/ampel/pkg/formats/predicate/generic"
+	"github.com/carabiner-dev/ampel/pkg/formats/statement/intoto"
+
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 type managerImplementation interface {
@@ -226,7 +234,7 @@ func (di *defaultImplementation) OpenNewTriages(backend api.TriageBackend, branc
 	for _, v := range vulns {
 		if _, ok := vulnIndex[fmt.Sprintf("%s::%s", v.ID, v.ComponentPurl())]; !ok {
 			// Create the new triage
-			t, err := di.CreateTriage(backend, branch, v, existing)
+			t, err := di.CreateTriage(backend, branch, v)
 			if err != nil {
 				return nil, fmt.Errorf("creating triage for %s: %w", v.ID, err)
 			}
@@ -234,6 +242,41 @@ func (di *defaultImplementation) OpenNewTriages(backend api.TriageBackend, branc
 		}
 	}
 	return newTriages, nil
+}
+
+// TriagesToAttestation turns a list of triages into openvex documents and
+// captures them in an attestation.
+func (di *defaultImplementation) TriagesToAttestation(triages []*api.Triage) (*intoto.Statement, error) {
+	doc, err := di.TriagesToVexDocument(triages)
+	if err != nil {
+		return nil, err
+	}
+
+	var b bytes.Buffer
+	if err := doc.ToJSON(&b); err != nil {
+		return nil, fmt.Errorf("rendering vex docs: %w", err)
+	}
+	predicate := &generic.Predicate{
+		Type: attestation.PredicateType(vex.TypeURI),
+		Data: b.Bytes(),
+	}
+
+	// Build the attestation subjects
+	subjects := []*gointoto.ResourceDescriptor{}
+	done := map[string]struct{}{}
+	for _, t := range triages {
+		if t.Status != api.StatusClosed && t.Status != api.StatusWaitingForStatement {
+			return nil, fmt.Errorf("triage of vulnerability %s not ready to attest", t.Vulnerability.ID)
+		}
+		if _, ok := done[t.Branch.Identifier()]; ok {
+			continue
+		}
+		subjects = append(subjects, t.Branch.ToResourceDescriptor())
+	}
+	return intoto.NewStatement(
+		intoto.WithPredicate(predicate),
+		intoto.WithSubject(subjects...),
+	), nil
 }
 
 func (di *defaultImplementation) TriagesToVexDocument(triages []*api.Triage) (*vex.VEX, error) {

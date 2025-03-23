@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"strings"
 
+	intoto "github.com/in-toto/attestation/go/v1"
 	"github.com/openvex/go-vex/pkg/vex"
 )
 
@@ -46,6 +47,21 @@ func (b *Branch) Purl() string {
 		return ""
 	}
 	return fmt.Sprintf("pkg:%s", strings.ReplaceAll(b.Identifier(), "github.com/", "github/"))
+}
+
+func (b *Branch) ToLocator() string {
+	if b.Repository == "" || b.Name == "" {
+		return ""
+	}
+	return fmt.Sprintf("git+https://%s#%s", b.Repository, b.Name)
+}
+
+func (b *Branch) ToResourceDescriptor() *intoto.ResourceDescriptor {
+	return &intoto.ResourceDescriptor{
+		Name:   b.Identifier(),
+		Uri:    "",
+		Digest: map[string]string{},
+	}
 }
 
 func (b *Branch) ToVexComponent() *vex.Component {
