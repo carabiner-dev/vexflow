@@ -46,13 +46,7 @@ type Manager struct {
 
 // CreateTriage opens a new triage process a vulnerability in the specified branch
 func (mgr *Manager) CreateTriage(branch *api.Branch, vuln *api.Vulnerability) (*api.Triage, error) {
-	// Fetch the list of existing triages
-	existing, err := mgr.GetVulnerabilityTriages(branch, vuln)
-	if err != nil {
-		return nil, fmt.Errorf("checking open triages: %w", err)
-	}
-
-	return mgr.impl.CreateTriage(mgr.triageBackend, branch, vuln, existing)
+	return mgr.impl.CreateTriage(mgr.triageBackend, branch, vuln)
 }
 
 // deleteTempClones removes the temporary data from the cloned branches
@@ -133,36 +127,6 @@ func (mgr *Manager) ListOpenBranchTriages(branch *api.Branch) ([]*api.Triage, er
 	ret := []*api.Triage{}
 	for _, t := range triages {
 		if t.Status != api.StatusClosed {
-			ret = append(ret, t)
-		}
-	}
-
-	return ret, nil
-}
-
-// GetVulnerabilityTriages
-func (mgr *Manager) GetVulnerabilityTriages(branch *api.Branch, vuln *api.Vulnerability) ([]*api.Triage, error) {
-	triages, err := mgr.ListBranchTriages(branch)
-	if err != nil {
-		return nil, err
-	}
-
-	ret := []*api.Triage{}
-	var triagePurl, vulnPurl string
-	if vuln.Component != nil {
-		vulnPurl = vuln.Component.Purl
-	}
-
-	for _, t := range triages {
-		if t.Vulnerability.Component != nil {
-			triagePurl = t.Vulnerability.Component.Purl
-		}
-
-		if err := mgr.triageBackend.ReadTriageStatus(t); err != nil {
-			return nil, err
-		}
-
-		if t.Vulnerability.HasId(vuln.ID) && triagePurl == vulnPurl {
 			ret = append(ret, t)
 		}
 	}

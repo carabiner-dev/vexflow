@@ -20,7 +20,7 @@ import (
 type managerImplementation interface {
 	// CreateTriage starts a new triage. It will return an error if there is already
 	// an equivalent triage not closed in the existing list.
-	CreateTriage(api.TriageBackend, *api.Branch, *api.Vulnerability, []*api.Triage) (*api.Triage, error)
+	CreateTriage(api.TriageBackend, *api.Branch, *api.Vulnerability) (*api.Triage, error)
 
 	// EnsureBranchClones reads a list of branches and ensures there is a local
 	// clone of them.
@@ -32,6 +32,8 @@ type managerImplementation interface {
 	ListBranchTriages(api.TriageBackend, *api.Branch) ([]*api.Triage, error)
 	ClassifyTriages([]*api.Triage) ([]*api.Triage, []*api.Triage, []*api.Triage)
 	UpdateTriages([]*api.Triage, []*api.Triage) error
+
+	FilterVulnerabilityTriages([]*api.Triage, *api.Vulnerability) ([]*api.Triage, error)
 
 	// OpenNewTriages is the internal method used to create new triages. As opposed
 	// to CreateTriage,  OpenNewTriages is used for autmated creation from scans
@@ -53,7 +55,18 @@ type defaultImplementation struct{}
 // CreateTriage creates a new triage in branch for the specified vulnerability.
 // First, the function will check the existing list and if there is already one
 // and not closed, it will return an error.
-func (di *defaultImplementation) CreateTriage(backend api.TriageBackend, branch *api.Branch, vuln *api.Vulnerability, existing []*api.Triage) (*api.Triage, error) {
+func (di *defaultImplementation) CreateTriage(backend api.TriageBackend, branch *api.Branch, vuln *api.Vulnerability) (*api.Triage, error) {
+	// Get the list of triages
+	triages, err := backend.ListBranchTriages(branch)
+	if err != nil {
+		return nil, err
+	}
+
+	// And filter those for the vulnerability
+	existing, err := di.FilterVulnerabilityTriages(triages, vuln)
+	if err != nil {
+		return nil, fmt.Errorf("filtering existing vulnerability triages: %w", err)
+	}
 	for _, t := range existing {
 		if t.Vulnerability.ID == vuln.ID &&
 			t.Vulnerability.Component.Purl == vuln.ComponentPurl() &&
@@ -298,4 +311,25 @@ func (di *defaultImplementation) CloseRedundantTriages(backend api.TriageBackend
 		}
 	}
 	return nil
+}
+
+// FilterVulnerabilityTriages reads a list of triages and returns those for a specific vuln
+func (di *defaultImplementation) FilterVulnerabilityTriages(triages []*api.Triage, vuln *api.Vulnerability) ([]*api.Triage, error) {
+	ret := []*api.Triage{}
+	var triagePurl, vulnPurl string
+	if vuln.Component != nil {
+		vulnPurl = vuln.Component.Purl
+	}
+
+	for _, t := range triages {
+		if t.Vulnerability.Component != nil {
+			triagePurl = t.Vulnerability.Component.Purl
+		}
+
+		if t.Vulnerability.HasId(vuln.ID) && triagePurl == vulnPurl {
+			ret = append(ret, t)
+		}
+	}
+
+	return ret, nil
 }
