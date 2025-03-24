@@ -3,8 +3,12 @@
 
 package v1
 
-import "github.com/openvex/go-vex/pkg/vex"
+import (
+	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
+	"github.com/openvex/go-vex/pkg/vex"
+)
 
 type VexPublisher interface {
 	PublishDocument(*vex.VEX) (*StatementNotice, error)
+	PublishAttestation(att ampel.Statement) (*StatementNotice, error)
 }

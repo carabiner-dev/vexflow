@@ -53,6 +53,9 @@ type managerImplementation interface {
 	// a VEX document ready to publish to an attestations store.
 	TriagesToVexDocument([]*api.Triage) (*vex.VEX, error)
 
+	// TriagesToAttestation converts closed triages to an attestation
+	TriagesToAttestation(triages []*api.Triage) (*intoto.Statement, error)
+
 	// CloseRedundantTriages closes all triages for which a vulnerability is no
 	// longer present, usually because the affected components were updated in the branch.
 	CloseRedundantTriages(api.TriageBackend, []*api.Vulnerability, []*api.Triage) error

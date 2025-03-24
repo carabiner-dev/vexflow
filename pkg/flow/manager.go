@@ -176,13 +176,13 @@ func (mgr *Manager) PublishStatements(triages []*api.Triage) error {
 		return nil
 	}
 
-	doc, err := mgr.impl.TriagesToVexDocument(triages)
+	statement, err := mgr.impl.TriagesToAttestation(triages)
 	if err != nil {
 		return fmt.Errorf("generating VEX document: %w", err)
 	}
 
 	// Publish the document using the configured publisher
-	notice, err := mgr.publisher.PublishDocument(doc)
+	notice, err := mgr.publisher.PublishAttestation(statement)
 	if err != nil {
 		return fmt.Errorf("publishing document: %w", err)
 	}

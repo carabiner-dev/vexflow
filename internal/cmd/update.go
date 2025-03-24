@@ -6,14 +6,13 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	"github.com/carabiner-dev/vexflow/pkg/publish/dir"
+	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"
 	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
 	"github.com/carabiner-dev/vexflow/pkg/triage/github"
 
@@ -33,10 +32,6 @@ func (uo *updateOptions) Validate() error {
 		errs = append(errs, err)
 	}
 
-	if uo.publishPath == "" {
-		errs = append(errs, fmt.Errorf("publish-path not set, define a URI to publish VEX data"))
-	}
-
 	return errors.Join(errs...)
 }
 
@@ -44,7 +39,7 @@ func (uo *updateOptions) Validate() error {
 func (to *updateOptions) AddFlags(cmd *cobra.Command) {
 	to.repoOptions.AddFlags(cmd)
 	cmd.PersistentFlags().StringVar(
-		&to.publishPath, "publish-path", "file:"+filepath.Join(os.TempDir(), "vexflow"), "location to publish VEX documents",
+		&to.publishPath, "publish-path", "", "location to publish VEX documents",
 	)
 	cmd.PersistentFlags().BoolVar(
 		&to.scan, "scan", true, "clone the repo and scan for new vulnerabilities",
@@ -106,13 +101,21 @@ func addUpdate(parentCmd *cobra.Command) {
 			// Create the statement publisher:
 			var publisher api.VexPublisher
 
-			// For now we only support the dir publisher
-			if strings.HasPrefix(opts.publishPath, "file:") {
+			// If there is a publish path, we use it. Otherwise we will publish
+			// to the github attestations store to the same repo where the triage
+			// is going on.
+			if opts.publishPath != "" {
 				publisher = &dir.Publisher{
 					Path: strings.TrimPrefix(opts.publishPath, "file:"),
 				}
 			} else {
-				return fmt.Errorf("no handler for publish location")
+				publisher, err = ghpublish.New(
+					ghpublish.WithOrg(backendOrg),
+					ghpublish.WithRepo(backendRepo),
+				)
+				if err != nil {
+					return err
+				}
 			}
 
 			// Create the flow manager

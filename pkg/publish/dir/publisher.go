@@ -10,6 +10,7 @@ import (
 	"slices"
 	"time"
 
+	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
@@ -68,4 +69,8 @@ func (p *Publisher) PublishDocument(doc *vex.VEX) (*api.StatementNotice, error) 
 		Published: time.Now(),
 		Location:  "file:" + path,
 	}, nil
+}
+
+func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotice, error) {
+	return nil, fmt.Errorf("PublishAttestation not yet implemented")
 }

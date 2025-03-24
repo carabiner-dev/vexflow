@@ -49,6 +49,7 @@ func (b *Branch) Purl() string {
 	return fmt.Sprintf("pkg:%s", strings.ReplaceAll(b.Identifier(), "github.com/", "github/"))
 }
 
+// ToLocator returns an SPDX CVS locator representing the branch
 func (b *Branch) ToLocator() string {
 	if b.Repository == "" || b.Name == "" {
 		return ""
@@ -56,14 +57,24 @@ func (b *Branch) ToLocator() string {
 	return fmt.Sprintf("git+https://%s#%s", b.Repository, b.Name)
 }
 
+// ToResourceDescriptor returns a representation of the branch as an intoto
+// ResourceDescriptor suitable to use in an attestation.
 func (b *Branch) ToResourceDescriptor() *intoto.ResourceDescriptor {
+	h := sha256.New()
+	h.Write([]byte(b.Identifier()))
+	digest := fmt.Sprintf("%x", h.Sum(nil))
+
 	return &intoto.ResourceDescriptor{
-		Name:   b.Identifier(),
-		Uri:    "",
-		Digest: map[string]string{},
+		Name: b.Identifier(),
+		Uri:  b.ToLocator(),
+		Digest: map[string]string{
+			string(intoto.AlgorithmSHA256): digest,
+		},
 	}
 }
 
+// ToVexComponent converts the branch data to an OpenVEX component
+// ready to use in the product of a statement.
 func (b *Branch) ToVexComponent() *vex.Component {
 	h := sha256.New()
 	h.Write([]byte(b.Identifier()))
