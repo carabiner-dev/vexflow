@@ -13,10 +13,11 @@ import (
 	"strconv"
 	"strings"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	gogithub "github.com/google/go-github/v60/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
+
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 func ParseSlug(slug string) (org, repo string, err error) {

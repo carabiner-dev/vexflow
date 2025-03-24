@@ -6,16 +6,15 @@ package github
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
 	"github.com/carabiner-dev/bnd/pkg/bnd"
 	"github.com/carabiner-dev/bnd/pkg/upload"
+	"github.com/openvex/go-vex/pkg/vex"
 	"google.golang.org/protobuf/encoding/protojson"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
-	"github.com/openvex/go-vex/pkg/vex"
 )
 
 func New(funcs ...fnOpt) (*Publisher, error) {
@@ -77,8 +76,6 @@ func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotic
 	if err != nil {
 		return nil, fmt.Errorf("marshaling signed bundle: %w", err)
 	}
-
-	os.WriteFile("/tmp/vex.bundle.json", bundleData, os.FileMode(0o644))
 
 	// First, sign the attestation
 	uploader := upload.NewClient()

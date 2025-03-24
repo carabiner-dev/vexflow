@@ -10,17 +10,15 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/google/uuid"
-	"github.com/openvex/go-vex/pkg/vex"
-	"github.com/sirupsen/logrus"
-
-	gointoto "github.com/in-toto/attestation/go/v1"
-
 	"github.com/carabiner-dev/ampel/pkg/attestation"
 	"github.com/carabiner-dev/ampel/pkg/formats/predicate/generic"
 	"github.com/carabiner-dev/ampel/pkg/formats/statement/intoto"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/google/uuid"
+	gointoto "github.com/in-toto/attestation/go/v1"
+	"github.com/openvex/go-vex/pkg/vex"
+	"github.com/sirupsen/logrus"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )

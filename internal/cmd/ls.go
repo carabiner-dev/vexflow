@@ -7,15 +7,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spf13/cobra"
-
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
-
-	"github.com/carabiner-dev/vexflow/pkg/flow"
-	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+	"github.com/spf13/cobra"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	"github.com/carabiner-dev/vexflow/pkg/flow"
+	"github.com/carabiner-dev/vexflow/pkg/triage/github"
 )
 
 var (

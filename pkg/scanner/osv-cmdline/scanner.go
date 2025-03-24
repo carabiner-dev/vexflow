@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	cosv "github.com/carabiner-dev/osv/go/osv"
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"sigs.k8s.io/release-utils/command"
+
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 func New() *Scanner {

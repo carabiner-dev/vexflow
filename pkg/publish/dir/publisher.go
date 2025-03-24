@@ -11,9 +11,10 @@ import (
 	"time"
 
 	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 type Publisher struct {

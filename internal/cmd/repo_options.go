@@ -7,8 +7,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/carabiner-dev/vexflow/pkg/triage/github"
 	"github.com/spf13/cobra"
+
+	"github.com/carabiner-dev/vexflow/pkg/triage/github"
 )
 
 type repoOptions struct {

@@ -67,7 +67,7 @@ linters:
     # - forbidigo
     # - forcetypeassert
     # - funlen
-    # - gci
+    - gci
     # - gochecknoglobals
     # - gochecknoinits
     # - gocognit
@@ -96,7 +96,7 @@ linters-settings:
     sections:
       - standard
       - default
-      - prefix(github.com/carabiner-dev/snappy)
+      - prefix(github.com/carabiner-dev/vexflow)
 
   godox:
     keywords:

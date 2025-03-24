@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"os"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/sirupsen/logrus"
+
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 // New creates a new flow manager

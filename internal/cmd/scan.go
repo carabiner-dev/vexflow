@@ -12,10 +12,9 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
 
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
-
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 type scanOptions struct {

@@ -10,13 +10,12 @@ import (
 
 	"github.com/spf13/cobra"
 
+	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	"github.com/carabiner-dev/vexflow/pkg/publish/dir"
 	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"
 	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
 	"github.com/carabiner-dev/vexflow/pkg/triage/github"
-
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
 type updateOptions struct {
