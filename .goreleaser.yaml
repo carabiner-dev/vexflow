@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: Copyright 2025 Carabiner Systems, Inc
+# SPDX-License-Identifier: Apache-2.0
+
+project_name: vexflow
+version: 2
+
+env:
+  - GO111MODULE=on
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - go mod tidy
+    - /bin/bash -c 'if [ -n "$(git --no-pager diff --exit-code go.mod go.sum)" ]; then exit 1; fi'
+
+gomod:
+  proxy: true
+
+builds:
+  - id: vexflow
+    no_unique_dist_dir: true
+    binary: vexflow-{{ .Tag }}-{{ .Os }}-{{ .Arch }}
+    main: .
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+      - goos: darwin
+        goarch: amd64
+    flags:
+      - -trimpath
+
+archives:
+  - formats: binary
+    name_template: vexflow-{{ .Tag }}-{{ .Os }}-{{ .Arch }}
+    allow_different_binary_count: true
+checksum:
+  disable: true
+  
+release:
+  github:
+    owner: carabiner-dev
+    name: vexflow
+  prerelease: auto
+
+changelog:
+  disable: true
