@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -224,7 +225,7 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 
 	currentStatus := api.StatusWaitingForAsessment
 	var lastSlashcommand *api.SlashCommand
-	for _, c := range comments {
+	for i, c := range comments {
 		// 1. Check if the comment is a slash command:
 		slashCommand, err := parseSlashCommand(c)
 		if err != nil {
@@ -232,6 +233,15 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 		}
 
 		if slashCommand != nil {
+			// If the comment with the slash command is not from someone in
+			// the OWNERS file, then we skip it. If this is the last comment
+			// in the issue, at some point we should reply saying it will not
+			// have any effect in the triage
+			if !slices.Contains(th.Owners.Approvers, *c.User.Login) {
+				logrus.Debugf("Ignoring comment #%d from %s as they are not in the OWNERS file", i, *c.User.Login)
+				continue
+			}
+
 			if err := validateSlashCommand(slashCommand); err != nil {
 				return err
 			}

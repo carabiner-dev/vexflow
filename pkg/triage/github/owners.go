@@ -16,7 +16,6 @@ import (
 )
 
 type Owners struct {
-	Options
 	Approvers         []string          `json:"approvers" yaml:"approvers"`
 	Reviewers         []string          `json:"reviewers" yaml:"reviewers"`
 	EmeritusApprovers []string          `json:"emeritus_approvers" yaml:"emeritus_approvers"`
