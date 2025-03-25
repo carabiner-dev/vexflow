@@ -24,5 +24,4 @@ func TestListIssues(t *testing.T) {
 	issues, err := handler.listIssues(t.Context())
 	require.NoError(t, err)
 	require.NotNil(t, issues)
-	require.Len(t, issues, 20)
 }

@@ -24,7 +24,9 @@ type Owners struct {
 // ReadOwners fetches the owners file from your github repo
 func (th *TriageHandler) ReadOwners() error {
 	if th.options.Org == "" || th.options.Repo == "" {
-		return fmt.Errorf("unable to get owners data, org or repo not set")
+		logrus.Debugf("unable to get owners data, org or repo not set")
+		th.Owners = &Owners{}
+		return nil
 	}
 
 	locator := fmt.Sprintf("git+https://github.com/%s/%s#OWNERS", th.options.Org, th.options.Repo)
