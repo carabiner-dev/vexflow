@@ -56,6 +56,12 @@ func addLs(parentCmd *cobra.Command) {
 		SilenceErrors:     true,
 		PersistentPreRunE: initLogging,
 		PreRunE: func(_ *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				if opts.RepoSlug != "" && opts.RepoSlug != args[0] {
+					return fmt.Errorf("repository specified twice")
+				}
+				opts.RepoSlug = args[0]
+			}
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -69,7 +75,7 @@ func addLs(parentCmd *cobra.Command) {
 				return err
 			}
 
-			// Init the github backend to the triage repo
+			// Init the github backend to the triage repository
 			backend, err := github.New(
 				github.WithTriageOrg(backendOrg),
 				github.WithTriageRepo(backendRepo),

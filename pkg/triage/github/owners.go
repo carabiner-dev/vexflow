@@ -29,6 +29,9 @@ func (th *TriageHandler) ReadOwners() error {
 		return nil
 	}
 
+	// For now, we only support a single OWNERS file hardcoded at the top
+	// of the repository, but we need to support more:
+	// https://github.com/carabiner-dev/vexflow/issues/6
 	locator := fmt.Sprintf("git+https://github.com/%s/%s#OWNERS", th.options.Org, th.options.Repo)
 	var b bytes.Buffer
 	logrus.Debugf("Fetching owners data from %s", locator)

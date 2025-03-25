@@ -21,6 +21,8 @@ import (
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
+var ErrRepositoryNotFound = errors.New("the specified triage repository does not exist")
+
 func ParseSlug(slug string) (org, repo string, err error) {
 	parts := strings.Split(slug, "/")
 	if len(parts) != 2 {
@@ -51,11 +53,6 @@ func New(funcs ...fnOption) (*TriageHandler, error) {
 		}
 	}
 
-	// Parse the owners file
-	if err := th.ReadOwners(); err != nil {
-		return nil, fmt.Errorf("parsing owners file: %w", err)
-	}
-
 	return th, nil
 }
 
@@ -69,6 +66,17 @@ type TriageHandler struct {
 func (th *TriageHandler) ReadStatusList([]*api.Vulnerability) {
 }
 
+// EnsureOwnersData reads the OWNERS data if its not set.
+func (th *TriageHandler) EnsureOwnersData() error {
+	if th.Owners == nil {
+		// Parse the owners file
+		if err := th.ReadOwners(); err != nil {
+			return fmt.Errorf("parsing owners file: %w", err)
+		}
+	}
+	return nil
+}
+
 // ListTriages returns a list of all triages in a repo for a branch
 func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, error) {
 	if branch.Identifier() == "" {
@@ -77,7 +85,9 @@ func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, e
 
 	issues, err := th.listIssues(context.Background())
 	if err != nil {
-		return nil, fmt.Errorf("fetching issues: %w", err)
+		return nil, fmt.Errorf(
+			"fetching issues from %s/%s: %w", th.options.Org, th.options.Repo, err,
+		)
 	}
 
 	ret := []*api.Triage{}
@@ -153,6 +163,9 @@ func (th *TriageHandler) listIssues(ctx context.Context) ([]*gogithub.Issue, err
 		}
 		moreIssues, response, err := th.client.Issues.ListByRepo(ctx, th.options.Org, th.options.Repo, opts)
 		if err != nil {
+			if strings.Contains(err.Error(), "404 Not Found") {
+				return nil, ErrRepositoryNotFound
+			}
 			return nil, fmt.Errorf("fetching issues from repo: %w", err)
 		}
 
@@ -203,6 +216,10 @@ func (th *TriageHandler) CreateTriage(branch *api.Branch, vuln *api.Vulnerabilit
 
 // ReadTriageStatus enriches a triage with data from the comment history
 func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
+	if err := th.EnsureOwnersData(); err != nil {
+		return err
+	}
+
 	nr, err := getIssueNumber(t)
 	if err != nil {
 		return err
