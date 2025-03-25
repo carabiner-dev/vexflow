@@ -1,4 +1,8 @@
-# vexflow: Manage Vulnerability Impact Information Through VEX
+# vexflow
+
+### Manage Vulnerability Impact Information
+
+<img src="https://avatars.githubusercontent.com/u/121361164?s=200&v=4" style="float:right; margin: 2em;">
 
 Vexflow handles the lifecycle of VEX information for projects through GitHub 
 issues. It keeps track of vulnerabilities that show up in your dependencies
@@ -14,7 +18,41 @@ please try it and report back any issues you find.
 
 ## Triage Process Lifecycle
 
-TBD
+When new vulnerabilities are discovered in the monitored branches,
+vexflow opens a new triage issue. As long as the vulnerability is
+present in the branch, the issue remains open waiting for an assessment
+from the authorized maintainers.
+
+Using vexflow's chatops interface, maintainers create an assessment using one
+of the recognized slash commands:
+
+```
+/fixed
+
+/affected
+
+/not_affected:component_not_present
+/not_affected:vulnerable_code_not_present
+/not_affected:vulnerable_code_not_in_execute_path
+/not_affected:vulnerable_code_cannot_be_controlled_by_adversary
+/not_affected:inline_mitigations_already_exist
+```
+
+After registering an assessment, `vexflow` translates the comment into an
+OpenVEX document that is signed and publised to the specified location.
+
+### Triasge Lifecycle Overview
+
+```mermaid
+flowchart TD
+    A(New Vulnerability) -->|Webhook| B(Create Triage Process) --> C(Wait For Event)
+    C ---->|Periodic Rescan| Q{Vulnerability Still Found?} ---->|YES| C
+    Q -->|No| CL(Close)
+    C -->|"Assessment (Comment Slash Command)"| PS[Generate VEX Statement] -->|under_investigation| C
+    PS --> |affected| CL
+    PS --> |not_affected| CL
+    PS --> G(Write + Sign Attestation) --> PA(Publish)
+```
 
 ## Pluging into Vexflow
 
