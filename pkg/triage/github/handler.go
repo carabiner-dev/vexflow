@@ -50,6 +50,11 @@ func New(funcs ...fnOption) (*TriageHandler, error) {
 		}
 	}
 
+	// Parse the owners file
+	if err := th.ReadOwners(); err != nil {
+		return nil, fmt.Errorf("parsing owners file: %w", err)
+	}
+
 	return th, nil
 }
 

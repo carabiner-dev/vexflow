@@ -6,6 +6,7 @@ require (
 	github.com/carabiner-dev/ampel v0.0.0-20250324000627-b703ff1eae8d
 	github.com/carabiner-dev/bnd v0.0.1-pre2.0.20250324030425-07a9dec2ee3c
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
+	github.com/carabiner-dev/vcslocator v0.1.1
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/go-git/go-git/v5 v5.14.0
 	github.com/google/go-github/v60 v60.0.0
@@ -19,6 +20,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/oauth2 v0.28.0
 	google.golang.org/protobuf v1.36.5
+	gopkg.in/yaml.v3 v3.0.1
 	sigs.k8s.io/release-utils v0.11.0
 )
 
@@ -196,7 +198,6 @@ require (
 	google.golang.org/grpc v1.71.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
 	www.velocidex.com/golang/regparser v0.0.0-20240404115756-2169ac0e3c09 // indirect
