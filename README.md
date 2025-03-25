@@ -2,12 +2,12 @@
 
 ### Manage Vulnerability Impact Information
 
-<img src="https://avatars.githubusercontent.com/u/121361164?s=200&v=4" style="float:right; margin: 2em;">
+<img src="https://avatars.githubusercontent.com/u/121361164?s=200&v=4" align="right" style="margin: 2em;">
 
 Vexflow handles the lifecycle of VEX information for projects through GitHub 
 issues. It keeps track of vulnerabilities that show up in your dependencies
 and manages a triaging process where maintainers assess the vulnerability's
-impact on the project and communicate it through VEX statements.
+impact on the project and communicate it through signed OpenVEX attestations.
 
 Vexflow generates VEX data in the [OpenVEX](https://github.com/openvex) format
 and published the generated documents attested in [In-Toto](https://in-toto.io/)
@@ -45,16 +45,41 @@ OpenVEX document that is signed and publised to the specified location.
 
 ```mermaid
 flowchart TD
-    A(New Vulnerability) -->|Webhook| B(Create Triage Process) --> C(Wait For Event)
-    C ---->|Periodic Rescan| Q{Vulnerability Still Found?} ---->|YES| C
+    A(New Vulnerability) -->|Webhook| B(Open New<br>Triage Process) --> C(Wait For Event)
+    C ---->|Periodic<br>Rescan| Q{Vulnerability<br>Still Found?} ---->|Yes| C
     Q -->|No| CL(Close)
-    C -->|"Assessment (Comment Slash Command)"| PS[Generate VEX Statement] -->|under_investigation| C
+    C -->|"Assessment <br> (Slash Command)"| PS[Generate<br>VEX Statement] -->|under_investigation| C
     PS --> |affected| CL
     PS --> |not_affected| CL
-    PS --> G(Write + Sign Attestation) --> PA(Publish)
+    PS --> G(Write + Sign<br>Attestation) --> PA(Publish)
 ```
 
-## Pluging into Vexflow
+### Triage Repository
+
+By default, vexflow will look for a .vexflow repository in
+the same organization of the monitored project. In this 
+repository, vexflow will open the triage issues and will 
+look for information about the authorized maintainers. The
+triage repo can be overwritten using the `--triage-repo` 
+flag.
+
+To specify the authorized maintainers, vexflow will look for a 
+Kubernetes/Prow-style OWNERS YAML file. Anyone listed  under the 
+`approvers` section will be able to assess vulnerabilities 
+(and issue VEX documents).
+
+Here is an example of the 
+[OWNERS file format](https://www.kubernetes.dev/docs/guide/owners/):
+
+```
+approvers:
+  - alice
+  - bob     # this is a comment
+```
+
+
+
+## Plugging into Vexflow
 
 The vexflow triage manager is designed to be pluggable, it can support more
 security scanners as well as other publishers for the VEX documents it generates.
