@@ -89,13 +89,14 @@ func addUpdate(parentCmd *cobra.Command) {
 				return err
 			}
 
-			backend, err := github.New()
+			// Init the github backend to the triage repository
+			backend, err := github.New(
+				github.WithTriageOrg(backendOrg),
+				github.WithTriageRepo(backendRepo),
+			)
 			if err != nil {
 				return fmt.Errorf("creating github backend: %w", err)
 			}
-
-			backend.Options.Org = backendOrg
-			backend.Options.Repo = backendRepo
 
 			// Create the statement publisher:
 			var publisher api.VexPublisher

@@ -19,8 +19,8 @@ func TestListIssues(t *testing.T) {
 	handler, err := New()
 	require.NoError(t, err)
 
-	handler.Options.Org = "protobom"
-	handler.Options.Repo = "protobom"
+	handler.options.Org = "protobom"
+	handler.options.Repo = "protobom"
 
 	issues, err := handler.listIssues(context.Background())
 	require.NoError(t, err)

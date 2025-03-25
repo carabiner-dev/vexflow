@@ -28,40 +28,35 @@ func ParseSlug(slug string) (org, repo string, err error) {
 	return parts[0], parts[1], nil
 }
 
-func New() (*TriageHandler, error) {
-	ctx := context.Background()
-
+func New(funcs ...fnOption) (*TriageHandler, error) {
 	token := os.Getenv("GITHUB_TOKEN")
 	if token == "" {
 		return nil, fmt.Errorf("GITHUB_TOKEN not set")
 	}
 
-	httpClient := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+	httpClient := oauth2.NewClient(context.Background(), oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	))
 
 	client := gogithub.NewClient(httpClient)
-	return &TriageHandler{
-		Options: Options{},
+	th := &TriageHandler{
+		options: Options{},
 		client:  client,
-	}, nil
+	}
+
+	for _, fn := range funcs {
+		if err := fn(th); err != nil {
+			return nil, err
+		}
+	}
+
+	return th, nil
 }
 
 type TriageHandler struct {
-	Options Options
+	options Options
+	Owners  *Owners
 	client  *gogithub.Client
-}
-
-type Options struct {
-	// Org/Repo where VexFlow will store the triage processes
-	Org  string
-	Repo string
-
-	// Labels
-	LabelAffected           string
-	LabelNotAffected        string
-	LabelFixed              string
-	LabelUnderInvestigation string
 }
 
 // ReadStatusList
@@ -150,7 +145,7 @@ func (th *TriageHandler) listIssues(ctx context.Context) ([]*gogithub.Issue, err
 				PerPage: 100,
 			},
 		}
-		moreIssues, response, err := th.client.Issues.ListByRepo(ctx, th.Options.Org, th.Options.Repo, opts)
+		moreIssues, response, err := th.client.Issues.ListByRepo(ctx, th.options.Org, th.options.Repo, opts)
 		if err != nil {
 			return nil, fmt.Errorf("fetching issues from repo: %w", err)
 		}
@@ -178,7 +173,7 @@ func (th *TriageHandler) CreateTriage(branch *api.Branch, vuln *api.Vulnerabilit
 
 	// Call the GitHub API to create the issue
 	title := fmt.Sprintf("%s: VEX Exploitability Triage", vuln.ID)
-	issue, _, err := th.client.Issues.Create(context.Background(), th.Options.Org, th.Options.Repo, &gogithub.IssueRequest{
+	issue, _, err := th.client.Issues.Create(context.Background(), th.options.Org, th.options.Repo, &gogithub.IssueRequest{
 		Title: &title,
 		Body:  &body,
 		// Labels: &[]string{},
@@ -209,7 +204,7 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 
 	// Read all the issue comments
 	comments, _, err := th.client.Issues.ListComments(
-		context.Background(), th.Options.Org, th.Options.Repo, nr,
+		context.Background(), th.options.Org, th.options.Repo, nr,
 		&gogithub.IssueListCommentsOptions{
 			Sort:        gogithub.String("created"),
 			Direction:   gogithub.String("asc"),
@@ -383,7 +378,7 @@ func (th *TriageHandler) AppendPublishNotice(t *api.Triage, notice *api.Statemen
 
 	// Publish comment to issue
 	if _, _, err := th.client.Issues.CreateComment(
-		context.Background(), th.Options.Org, th.Options.Repo, nr,
+		context.Background(), th.options.Org, th.options.Repo, nr,
 		&gogithub.IssueComment{
 			Body: gogithub.String(commentText),
 		},
@@ -404,7 +399,7 @@ func (th *TriageHandler) CloseTriage(t *api.Triage) error {
 	if err != nil {
 		return err
 	}
-	if _, _, err := th.client.Issues.Edit(context.Background(), th.Options.Org, th.Options.Repo, nr, &gogithub.IssueRequest{
+	if _, _, err := th.client.Issues.Edit(context.Background(), th.options.Org, th.options.Repo, nr, &gogithub.IssueRequest{
 		State:       gogithub.String("closed"),
 		StateReason: gogithub.String("completed"),
 	}); err != nil {
@@ -422,7 +417,7 @@ func (th *TriageHandler) CloseTriageWithMessage(t *api.Triage, msg string) error
 	}
 	// Publish comment to issue
 	if _, _, err := th.client.Issues.CreateComment(
-		context.Background(), th.Options.Org, th.Options.Repo, nr,
+		context.Background(), th.options.Org, th.options.Repo, nr,
 		&gogithub.IssueComment{
 			Body: gogithub.String(msg),
 		},

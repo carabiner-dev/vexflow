@@ -76,13 +76,14 @@ func addTriage(parentCmd *cobra.Command) {
 				return err
 			}
 
-			backend, err := github.New()
+			// Init the github backend to the triage repository
+			backend, err := github.New(
+				github.WithTriageOrg(backendOrg),
+				github.WithTriageRepo(backendRepo),
+			)
 			if err != nil {
 				return fmt.Errorf("creating github backend: %w", err)
 			}
-
-			backend.Options.Org = backendOrg
-			backend.Options.Repo = backendRepo
 
 			mgr, err := flow.New(
 				flow.WithBackend(backend),
