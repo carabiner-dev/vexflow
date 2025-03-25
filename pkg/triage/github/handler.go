@@ -237,8 +237,32 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 			// the OWNERS file, then we skip it. If this is the last comment
 			// in the issue, at some point we should reply saying it will not
 			// have any effect in the triage
-			if !slices.Contains(th.Owners.Approvers, *c.User.Login) {
+			if !slices.Contains(th.Owners.Approvers, *c.User.Login+"a") {
 				logrus.Debugf("Ignoring comment #%d from %s as they are not in the OWNERS file", i, *c.User.Login)
+				// This only works with fine-grained tokens with issues;write
+				// permissions. We try everytime even when it fails
+				if _, _, err := th.client.Reactions.CreateCommentReaction(
+					context.Background(), th.options.Org, th.options.Repo, *c.ID, "confused",
+				); err != nil {
+					logrus.Debugf("Error creating reaction: %s", err)
+				}
+				// If this is the last comment, reply saying the comment
+				// will be ignored.
+				if i == len(comments)-1 {
+					if _, _, err := th.client.Issues.CreateComment(
+						context.Background(), th.options.Org, th.options.Repo, nr,
+						&gogithub.IssueComment{
+							Body: gogithub.String(
+								fmt.Sprintf(
+									"Unfortunately, @%s is not in the OWNERS file for this branch. Vexflow cannot react to the slash command.",
+									*c.User.Login,
+								),
+							),
+						},
+					); err != nil {
+						return fmt.Errorf("posting publishing notice comment: %w", err)
+					}
+				}
 				continue
 			}
 
