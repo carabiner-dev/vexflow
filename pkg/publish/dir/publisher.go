@@ -56,11 +56,11 @@ func (p *Publisher) PublishDocument(doc *vex.VEX) (*api.StatementNotice, error) 
 	}
 	path := filepath.Join(dirName, fmt.Sprintf("%s.openvex.json", doc.ID))
 
-	f, err := os.Create(path)
+	f, err := os.Create(path) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("opening vex document file: %w", err)
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	if err := doc.ToJSON(f); err != nil {
 		return nil, fmt.Errorf("writing vex data: %w", err)

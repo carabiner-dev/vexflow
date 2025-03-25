@@ -36,7 +36,7 @@ func (th *TriageHandler) generateIssueBody(branch *api.Branch, vuln *api.Vulnera
 
 	data, err := json.Marshal(message)
 	if err != nil {
-		return "", fmt.Errorf("marshaling embedded message: %s", err)
+		return "", fmt.Errorf("marshaling embedded message: %w", err)
 	}
 
 	embed := "<!--\n" + bodySeparator + "\n" + string(data) + "\n" + bodySeparator + "\n-->"

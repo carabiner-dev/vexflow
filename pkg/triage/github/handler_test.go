@@ -4,7 +4,6 @@
 package github
 
 import (
-	"context"
 	"os"
 	"testing"
 
@@ -22,7 +21,7 @@ func TestListIssues(t *testing.T) {
 	handler.options.Org = "protobom"
 	handler.options.Repo = "protobom"
 
-	issues, err := handler.listIssues(context.Background())
+	issues, err := handler.listIssues(t.Context())
 	require.NoError(t, err)
 	require.NotNil(t, issues)
 	require.Len(t, issues, 20)

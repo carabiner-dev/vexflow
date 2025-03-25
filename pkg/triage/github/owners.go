@@ -9,17 +9,16 @@ import (
 	"io"
 	"strings"
 
-	"gopkg.in/yaml.v3"
-
 	"github.com/carabiner-dev/vcslocator"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
 type Owners struct {
-	Approvers         []string          `json:"approvers" yaml:"approvers"`
-	Reviewers         []string          `json:"reviewers" yaml:"reviewers"`
+	Approvers         []string          `json:"approvers"          yaml:"approvers"`
+	Reviewers         []string          `json:"reviewers"          yaml:"reviewers"`
 	EmeritusApprovers []string          `json:"emeritus_approvers" yaml:"emeritus_approvers"`
-	Alias             map[string]string `json:"aliases" yaml:"aliases"`
+	Alias             map[string]string `json:"aliases"            yaml:"aliases"`
 }
 
 // ReadOwners fetches the owners file from your github repo

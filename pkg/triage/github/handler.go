@@ -95,13 +95,13 @@ func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, e
 		}
 
 		if i.GetState() == "closed" {
-			embedded.Triage.Status = api.StatusClosed
+			embedded.Status = api.StatusClosed
 		}
 
 		// Assign the issue number to the triage object
 		embedded.BackendID = fmt.Sprintf("%d", i.GetNumber())
 
-		if embedded.Triage.Status != api.StatusClosed {
+		if embedded.Status != api.StatusClosed {
 			if err := th.ReadTriageStatus(&embedded.Triage); err != nil {
 				return nil, err
 			}
@@ -442,7 +442,7 @@ func (th *TriageHandler) CloseTriage(t *api.Triage) error {
 		State:       gogithub.String("closed"),
 		StateReason: gogithub.String("completed"),
 	}); err != nil {
-		return fmt.Errorf("closing issue #%d: #w", err)
+		return fmt.Errorf("closing issue #%d: %w", nr, err)
 	}
 	t.Status = api.StatusClosed
 	return nil

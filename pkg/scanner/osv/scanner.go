@@ -88,7 +88,7 @@ func (s *Scanner) ingestScanResults(results *models.VulnerabilityResults) ([]*ap
 }
 
 func osvPackageToPackage(opkg *models.PackageInfo) (*api.Package, error) {
-	ptype := ""
+	var ptype string
 	switch opkg.Ecosystem {
 	case "Go":
 		ptype = "golang"

@@ -46,18 +46,18 @@ func processOSVreport(data string) ([]*api.Vulnerability, error) {
 		return nil, fmt.Errorf("parsing osvx results: %w", err)
 	}
 	ret := []*api.Vulnerability{}
-	for _, r := range results.Results {
-		for _, p := range r.Packages {
-			pkg, err := osvPackageToPackage(p.Package)
+	for _, r := range results.GetResults() {
+		for _, p := range r.GetPackages() {
+			pkg, err := osvPackageToPackage(p.GetPackage())
 			if err != nil {
 				return nil, fmt.Errorf("error creating package")
 			}
 
-			for i := range p.Vulnerabilities {
+			for i := range p.GetVulnerabilities() {
 				// Build the aliases list
 				aliases := []string{}
 				id := ""
-				for _, alias := range p.Vulnerabilities[i].Aliases {
+				for _, alias := range p.GetVulnerabilities()[i].GetAliases() {
 					if strings.HasPrefix(alias, "CVE-") && id == "" {
 						id = alias
 						continue
@@ -66,15 +66,15 @@ func processOSVreport(data string) ([]*api.Vulnerability, error) {
 				}
 
 				if id == "" {
-					id = p.Vulnerabilities[i].Id
+					id = p.GetVulnerabilities()[i].GetId()
 				} else {
-					aliases = append(aliases, p.Vulnerabilities[i].Id)
+					aliases = append(aliases, p.GetVulnerabilities()[i].GetId())
 				}
 				ret = append(ret, &api.Vulnerability{
 					ID:        id,
 					Aliases:   aliases,
-					Summary:   p.Vulnerabilities[i].Summary,
-					Details:   p.Vulnerabilities[i].Details,
+					Summary:   p.GetVulnerabilities()[i].GetDetails(),
+					Details:   p.GetVulnerabilities()[i].GetSummary(),
 					Component: pkg,
 				})
 			}
@@ -85,18 +85,18 @@ func processOSVreport(data string) ([]*api.Vulnerability, error) {
 }
 
 func osvPackageToPackage(opkg *cosv.Result_Package_Info) (*api.Package, error) {
-	ptype := ""
-	switch opkg.Ecosystem {
+	var ptype string
+	switch opkg.GetEcosystem() {
 	case "Go":
 		ptype = "golang"
 	default:
-		return nil, fmt.Errorf("unknown package ecosystem %s", opkg.Ecosystem)
+		return nil, fmt.Errorf("unknown package ecosystem %s", opkg.GetEcosystem())
 	}
 
 	return &api.Package{
 		Type:    ptype,
-		Name:    opkg.Name,
-		Version: opkg.Version,
-		Purl:    fmt.Sprintf("pkg:%s/%s@%v", ptype, opkg.Name, opkg.Version),
+		Name:    opkg.GetName(),
+		Version: opkg.GetVersion(),
+		Purl:    fmt.Sprintf("pkg:%s/%s@%v", ptype, opkg.GetName(), opkg.GetVersion()),
 	}, nil
 }

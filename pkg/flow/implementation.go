@@ -208,6 +208,8 @@ func (di *defaultImplementation) ClassifyTriages(triages []*api.Triage) (waitAss
 		case api.StatusWaitingForClose:
 			logrus.Infof("%s (%s) is waiting for issue to be closed", t.Vulnerability.ID, t.Vulnerability.ComponentPurl())
 			waitClose = append(waitClose, t)
+		case api.StatusClosed:
+			continue
 		}
 	}
 	return waitAssessment, waitStatement, waitClose
