@@ -398,3 +398,20 @@ func getLocalRepoRemoteURL(path string) (string, error) {
 	}
 	return remoteUrl, nil
 }
+
+// ScanRemoteBranch clones a remote repo, scans for vulnerabilities and remove
+// the local copy
+func (mgr *Manager) ScanRemoteBranch(branch *api.Branch) ([]*api.Vulnerability, error) {
+	// Ensure clones
+	if err := mgr.impl.EnsureBranchClones(&mgr.Options, []*api.Branch{branch}); err != nil {
+		return nil, fmt.Errorf("ensuring up to date clones: %w", err)
+	}
+	defer deleteTempClones([]*api.Branch{branch})
+
+	// Extract current vulnerabilities
+	vulns, err := mgr.impl.ScanVulnerabilities(mgr.scanner, branch)
+	if err != nil {
+		return nil, fmt.Errorf("checking for vulnerabilities: %w", err)
+	}
+	return vulns, nil
+}
