@@ -43,11 +43,10 @@ func (th *TriageHandler) generateIssueBody(branch *api.Branch, vuln *api.Vulnera
 
 	summaryRow := ""
 	if vuln.Summary != "" {
-		summaryRow = fmt.Sprintf("\n| | %s ", vuln.Summary)
+		summaryRow = fmt.Sprintf("<tr><td>__Summary:__</td><td>%s</td></tr>", vuln.Summary)
 		if vuln.Details != "" {
-			summaryRow += fmt.Sprintf("|\n%s ", vuln.Details)
+			summaryRow += fmt.Sprintf("\n<tr><td colspan=\"2\">%s</td></tr>", vuln.Details)
 		}
-		summaryRow += "|\n"
 	}
 
 	return fmt.Sprintf(`
@@ -64,12 +63,13 @@ client how to move forward.
 
 First, determine if the vulnerability affects the project branch:
 
-| | |
-| --- | --- | 
-| __Vulnerability__ | %s |%s
-| __Repository__ | %s | 
-| __Branch__ | %s |
-| __Component__ | %s |
+<table>
+<tr><td>__Vulnerability:__<td>%s</td></tr>
+%s
+<tr><td>__Repository:__</td><td>%s</td></tr>
+<tr><td>__Branch:__</td><td>%s</td>
+<td><td>__Component:__</td><td>%s</td></tr>
+</table>
 
 To register your assessment, determine if it affects the project branch and add
 a slash command in a comment to generate the appropriate VEX statement:
