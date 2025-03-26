@@ -8,8 +8,16 @@ import (
 	"fmt"
 	"os"
 
+	gointoto "github.com/in-toto/attestation/go/v1"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/carabiner-dev/ampel/pkg/attestation"
+	"github.com/carabiner-dev/ampel/pkg/formats/predicate/generic"
+	aosv "github.com/carabiner-dev/ampel/pkg/formats/predicate/osv"
+	"github.com/carabiner-dev/ampel/pkg/formats/statement/intoto"
+	"github.com/carabiner-dev/osv/go/osv"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
@@ -206,4 +214,99 @@ func (mgr *Manager) PublishStatements(triages []*api.Triage) error {
 
 func (m *Manager) ScanBranchCode(branch *api.Branch) ([]*api.Vulnerability, error) {
 	return m.impl.ScanVulnerabilities(m.scanner, branch)
+}
+
+// VulnsToAttestation reads a list of vulnerabilities and generates a
+func (m *Manager) VulnsToAttestation(subject *gointoto.ResourceDescriptor, vulns []*api.Vulnerability) (attestation.Statement, error) {
+	osvResults, err := m.VulnsToOSV(vulns)
+	if err != nil {
+		return nil, fmt.Errorf("generating OSV report: %w", err)
+	}
+
+	osvResults.Results[0].Source = &osv.Result_Source{
+		Path: subject.GetUri(),
+		Type: "repository",
+	}
+
+	// Marshal the json output here
+	osvJSON, err := protojson.Marshal(osvResults)
+	if err != nil {
+		return nil, fmt.Errorf("marshaling json data: %w", err)
+	}
+
+	predicate := &generic.Predicate{
+		Type:          aosv.PredicateType,
+		Parsed:        osvResults,
+		Data:          osvJSON,
+		Verifications: []*attestation.SignatureVerification{},
+	}
+
+	s := intoto.NewStatement(
+		intoto.WithSubject(subject),
+		intoto.WithPredicate(predicate),
+	)
+
+	return s, nil
+}
+
+// VulnsToOSV reads a list of vulnerabilities and returns a list of results
+// formateed in the results set from OSV scanner. Note that this only creates
+// the list, the results origin does not get populated.
+func (m *Manager) VulnsToOSV(vulns []*api.Vulnerability) (*osv.Results, error) {
+	results := osv.Results{
+		Date: timestamppb.Now(),
+		Results: []*osv.Result{
+			{
+				Packages: []*osv.Result_Package{},
+			},
+		},
+	}
+
+	pmap := map[string]*osv.Result_Package{}
+
+	for _, v := range vulns {
+		key := v.Component.Type + "::" + v.Component.Name
+
+		// If we haven't seen this package, add an entry to the map
+		if _, ok := pmap[key]; !ok {
+			pmap[key] = &osv.Result_Package{
+				Package: &osv.Result_Package_Info{
+					Name:      v.Component.Name,
+					Version:   v.Component.Version,
+					Ecosystem: v.Component.Type,
+				},
+				Vulnerabilities: []*osv.Record{},
+			}
+		}
+
+		// Add the vuln recors
+		rec := &osv.Record{
+			SchemaVersion: osv.Version,
+			Id:            v.ID,
+			// Modified:         &timestamppb.Timestamp{},
+			// Published:        &timestamppb.Timestamp{},
+			// Withdrawn:        &timestamppb.Timestamp{},
+			Aliases: v.Aliases,
+			Summary: v.Summary,
+			Details: v.Details,
+			// Severity:         []*osv.Severity{},
+			Affected: []*osv.Affected{
+				{
+					Versions: []string{v.Component.Version},
+					Package: &osv.Package{
+						Ecosystem: v.Component.Type,
+						Name:      v.Component.Name,
+						Purl:      v.ComponentPurl(),
+					},
+				},
+			},
+		}
+		pmap[key].Vulnerabilities = append(pmap[key].Vulnerabilities, rec)
+	}
+
+	for _, packageVulns := range pmap {
+		results.Results[0].Packages = append(results.Results[0].Packages, packageVulns)
+	}
+
+	return &results, nil
 }

@@ -4,13 +4,21 @@
 package cmd
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"os"
+	"slices"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/types/known/structpb"
+
+	gointoto "github.com/in-toto/attestation/go/v1"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
@@ -18,14 +26,22 @@ import (
 )
 
 type scanPathOptions struct {
-	Path string
+	Path   string
+	Format string
+	Attest bool
 }
+
+var scanFormats = []string{"table", "osv"}
 
 // Validates the options in context with arguments
 func (so *scanPathOptions) Validate() error {
 	errs := []error{}
 	if so.Path == "" {
 		errs = append(errs, errors.New("path to code directory not set"))
+	}
+
+	if !slices.Contains(scanFormats, so.Format) {
+		errs = append(errs, fmt.Errorf("invalid format, supported values: %+v", scanFormats))
 	}
 
 	return errors.Join(errs...)
@@ -35,6 +51,13 @@ func (so *scanPathOptions) Validate() error {
 func (so *scanPathOptions) AddFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVar(
 		&so.Path, "path", ".", "path top the codebase to scan",
+	)
+	cmd.PersistentFlags().StringVarP(
+		&so.Format, "format", "f", "table", fmt.Sprintf("output format (%+v)", scanFormats),
+	)
+
+	cmd.PersistentFlags().BoolVarP(
+		&so.Attest, "attest", "a", false, "output as an attestation (implies --format=osv)",
 	)
 }
 
@@ -76,12 +99,30 @@ func addScanPath(parentCmd *cobra.Command) {
 		SilenceUsage:      false,
 		SilenceErrors:     true,
 		PersistentPreRunE: initLogging,
+		Long: `
+	vexflow scan path: Scan a local directory
+	The vexflow scan path subcommand runs the configured scanner to extract
+	vulnerabilities on a local codebase:
+	vexflow scan path /my/directory
+	By default, the subcommand outputs the vulnerabilities as an on screen
+	table but the scan family of subcommands can also output the data as an
+	OSV schema formatted JSON file:
+	vexflow scan path --format=osv /my/directory
+	Using the --attest flag will wrap the OSV JSON data in an attestation. In order
+	to generate the attestation, the target directory needs to be a git repository 
+	and vexflow needs to be able to read the git data to determine the branch and 
+	remote.
+	vexflow scan path --format=osv --attest /my/directory
+	`,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			if len(args) > 0 {
 				if opts.Path != "." && opts.Path != "" && opts.Path != args[0] {
 					return errors.New("code directory specified twice")
 				}
 				opts.Path = args[0]
+			}
+			if opts.Attest {
+				opts.Format = "osv"
 			}
 			return nil
 		},
@@ -90,23 +131,65 @@ func addScanPath(parentCmd *cobra.Command) {
 			if err := opts.Validate(); err != nil {
 				return err
 			}
-
 			mgr, err := flow.New(
 				flow.WithScanner(osv.New()),
 			)
 			if err != nil {
 				return err
 			}
-
 			branch := &api.Branch{
 				ClonePath: opts.Path,
 			}
-
 			vulns, err := mgr.ScanBranchCode(branch)
 			if err != nil {
 				return err
 			}
 
+			var out io.Writer = os.Stdout
+
+			if opts.Format == "osv" {
+				if opts.Attest {
+					attestation, err := mgr.VulnsToAttestation(&gointoto.ResourceDescriptor{
+						Name:             "",
+						Uri:              "",
+						Digest:           map[string]string{},
+						Content:          []byte{},
+						DownloadLocation: "",
+						MediaType:        "",
+						Annotations:      &structpb.Struct{},
+					}, vulns)
+					if err != nil {
+						return err
+					}
+
+					enc := json.NewEncoder(out)
+					enc.SetIndent("", "  ")
+					if err := enc.Encode(attestation); err != nil {
+						return fmt.Errorf("marshaling attestation: %w", err)
+					}
+					return nil
+				}
+
+				// If not an attestation, just output the OSV data:
+				osvdata, err := mgr.VulnsToOSV(vulns)
+				if err != nil {
+					return err
+				}
+
+				data, err := protojson.MarshalOptions{
+					Multiline: true,
+					Indent:    "  ",
+				}.Marshal(osvdata)
+				if err != nil {
+					return fmt.Errorf("marshaling OSV data: %w", err)
+				}
+
+				// Output the marshalled data
+				if _, err := out.Write(data); err != nil {
+					return err
+				}
+				return nil
+			}
 			t := table.New().
 				Border(lipgloss.NormalBorder()).
 				BorderStyle(lipgloss.NewStyle().Foreground(purple)).
@@ -129,7 +212,6 @@ func addScanPath(parentCmd *cobra.Command) {
 					vuln.ComponentPurl(),
 				)
 			}
-
 			fmt.Println(t)
 			return nil
 		},
