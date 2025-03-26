@@ -69,16 +69,21 @@ func (th *TriageHandler) ReadStatusList([]*api.Vulnerability) {
 // EnsureOwnersData reads the OWNERS data if its not set.
 func (th *TriageHandler) EnsureOwnersData() error {
 	if th.Owners == nil {
+		logrus.Debugf("No OWNERS defined, loading")
 		// Parse the owners file
 		if err := th.ReadOwners(); err != nil {
 			return fmt.Errorf("parsing owners file: %w", err)
 		}
+		logrus.Debugf("OWNERS loaded: %+v", th.Owners)
 	}
 	return nil
 }
 
 // ListTriages returns a list of all triages in a repo for a branch
 func (th *TriageHandler) ListBranchTriages(branch *api.Branch) ([]*api.Triage, error) {
+	if err := th.EnsureOwnersData(); err != nil {
+		return nil, err
+	}
 	if branch.Identifier() == "" {
 		return nil, fmt.Errorf("branch identifier is invalid")
 	}
@@ -254,7 +259,7 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 			// the OWNERS file, then we skip it. If this is the last comment
 			// in the issue, at some point we should reply saying it will not
 			// have any effect in the triage
-			if !slices.Contains(th.Owners.Approvers, *c.User.Login+"a") {
+			if !slices.Contains(th.Owners.Approvers, *c.User.Login) {
 				logrus.Debugf("Ignoring comment #%d from %s as they are not in the OWNERS file", i, *c.User.Login)
 				// This only works with fine-grained tokens with issues;write
 				// permissions. We try everytime even when it fails
