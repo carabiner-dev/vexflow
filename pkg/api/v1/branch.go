@@ -54,7 +54,7 @@ func (b *Branch) ToLocator() string {
 	if b.Repository == "" || b.Name == "" {
 		return ""
 	}
-	return fmt.Sprintf("git+https://%s#%s", b.Repository, b.Name)
+	return fmt.Sprintf("git+https://%s@%s", b.Repository, b.Name)
 }
 
 // ToResourceDescriptor returns a representation of the branch as an intoto
