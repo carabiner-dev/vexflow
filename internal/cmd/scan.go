@@ -17,14 +17,14 @@ import (
 	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
 )
 
-type scanOptions struct {
-	ClonePath string
+type scanPathOptions struct {
+	Path string
 }
 
 // Validates the options in context with arguments
-func (so *scanOptions) Validate() error {
+func (so *scanPathOptions) Validate() error {
 	errs := []error{}
-	if so.ClonePath == "" {
+	if so.Path == "" {
 		errs = append(errs, errors.New("path to code directory not set"))
 	}
 
@@ -32,27 +32,56 @@ func (so *scanOptions) Validate() error {
 }
 
 // AddFlags adds the subcommands flags
-func (so *scanOptions) AddFlags(cmd *cobra.Command) {
+func (so *scanPathOptions) AddFlags(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringVar(
-		&so.ClonePath, "clone-path", ".", "path top the codebase to scan",
+		&so.Path, "path", ".", "path top the codebase to scan",
 	)
 }
 
 func addScan(parentCmd *cobra.Command) {
-	opts := &scanOptions{}
+	scanCommand := &cobra.Command{
+		Short:        "list the vulnerabilities the configured scanner sees",
+		Use:          "scan [path|repo] scanning/target",
+		SilenceUsage: false,
+		Long: `
+vexflow scan [path|repo]: List vulnerabilities found by the configured scanner.
+
+The can command invokes the configured scanner and returns the vulnerabilities
+it sees in a codebase. scan has two subcommands:
+
+vexflow scan path /path/to/code
+
+Calls the scanner in a local codebase, returning the vulnerability list.
+
+vexflow scan repo github.com/organization/repository
+
+The repo subcommand works like path but clones the repository from the
+remote URL and runs the scanner in the local copy.
+
+By default vexflow scan outputs its findings to a table on STDOUT. The results
+can also be output in the OSV format optionally wrapped in an attestation.
+
+`,
+	}
+	addScanPath(scanCommand)
+	parentCmd.AddCommand(scanCommand)
+}
+
+func addScanPath(parentCmd *cobra.Command) {
+	opts := &scanPathOptions{}
 	triageCommand := &cobra.Command{
-		Short:             "list the vulnerabilities in a codebase as seen by the scanner",
-		Use:               "scan",
+		Short:             "list the vulnerabilities in a local codebase as seen by the scanner",
+		Use:               "path",
 		Example:           fmt.Sprintf(`%s scan --repo org/repo --branch=main `, appname),
 		SilenceUsage:      false,
 		SilenceErrors:     true,
 		PersistentPreRunE: initLogging,
 		PreRunE: func(_ *cobra.Command, args []string) error {
 			if len(args) > 0 {
-				if opts.ClonePath != "." && opts.ClonePath != "" && opts.ClonePath != args[0] {
+				if opts.Path != "." && opts.Path != "" && opts.Path != args[0] {
 					return errors.New("code directory specified twice")
 				}
-				opts.ClonePath = args[0]
+				opts.Path = args[0]
 			}
 			return nil
 		},
@@ -70,7 +99,7 @@ func addScan(parentCmd *cobra.Command) {
 			}
 
 			branch := &api.Branch{
-				ClonePath: opts.ClonePath,
+				ClonePath: opts.Path,
 			}
 
 			vulns, err := mgr.ScanBranchCode(branch)
