@@ -7,7 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/go-git/go-git/v5"
 	gointoto "github.com/in-toto/attestation/go/v1"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -309,4 +312,89 @@ func (m *Manager) VulnsToOSV(vulns []*api.Vulnerability) (*osv.Results, error) {
 	}
 
 	return &results, nil
+}
+
+// LocalRepoToResourceDescriptor reads a local repository and returns the
+func (m *Manager) LocalRepoToResourceDescriptor(path string) (*gointoto.ResourceDescriptor, error) {
+	url, err := getLocalRepoRemoteURL(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading remote: %w", err)
+	}
+
+	branchName, err := getLocalRepoBranch(path)
+	if err != nil {
+		return nil, fmt.Errorf("reading repo branch: %w", err)
+	}
+
+	// Normalize the URL
+	url = strings.TrimSuffix(url, ".git")
+	if strings.HasPrefix(url, "git@") {
+		url = strings.Replace(url, ":", "/", 1)
+		url = strings.TrimPrefix(url, "git@")
+	}
+	url = strings.TrimPrefix(url, "https://")
+
+	branch := &api.Branch{
+		Repository: url,
+		Name:       branchName,
+		ClonePath:  path,
+	}
+
+	return branch.ToResourceDescriptor(), nil
+}
+
+func getLocalRepoBranch(path string) (string, error) {
+	repo, err := git.PlainOpen(path)
+	if err != nil {
+		return "", fmt.Errorf("opening local repository: %w", err)
+	}
+	head, err := repo.Head()
+	if err != nil {
+		return "", err
+	}
+
+	return head.Name().Short(), nil
+}
+
+// getLocalRepoRemoteURL reads a local repo clone and tries to guess
+// the url of the main remote
+func getLocalRepoRemoteURL(path string) (string, error) {
+	repo, err := git.PlainOpen(path)
+	if err != nil {
+		return "", fmt.Errorf("opening local repository: %w", err)
+	}
+	remotes, err := repo.Remotes()
+	if err != nil {
+		return "", fmt.Errorf("reading repo remotes: %w", err)
+	}
+	if len(remotes) == 0 {
+		p, err := filepath.Abs(path)
+		if err != nil {
+			return "", fmt.Errorf("computing path: %w", err)
+		}
+		return "file:" + p, nil
+	}
+	var remoteUrl, firstUrl string
+	for _, remote := range remotes {
+		if remote.Config() == nil {
+			continue
+		}
+		if len(remote.Config().URLs) == 0 {
+			continue
+		}
+
+		if firstUrl == "" {
+			firstUrl = remote.Config().URLs[0]
+		}
+		if remote.Config().Name == "origin" && remoteUrl == "" {
+			remoteUrl = remote.Config().URLs[0]
+		}
+		if remote.Config().Name == "upstream" {
+			remoteUrl = remote.Config().URLs[0]
+		}
+	}
+	if remoteUrl == "" {
+		remoteUrl = firstUrl
+	}
+	return remoteUrl, nil
 }

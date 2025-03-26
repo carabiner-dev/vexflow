@@ -16,9 +16,6 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/structpb"
-
-	gointoto "github.com/in-toto/attestation/go/v1"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
@@ -149,15 +146,11 @@ func addScanPath(parentCmd *cobra.Command) {
 
 			if opts.Format == "osv" {
 				if opts.Attest {
-					attestation, err := mgr.VulnsToAttestation(&gointoto.ResourceDescriptor{
-						Name:             "",
-						Uri:              "",
-						Digest:           map[string]string{},
-						Content:          []byte{},
-						DownloadLocation: "",
-						MediaType:        "",
-						Annotations:      &structpb.Struct{},
-					}, vulns)
+					subj, err := mgr.LocalRepoToResourceDescriptor(opts.Path)
+					if err != nil {
+						return err
+					}
+					attestation, err := mgr.VulnsToAttestation(subj, vulns)
 					if err != nil {
 						return err
 					}
