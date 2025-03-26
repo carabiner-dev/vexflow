@@ -43,7 +43,7 @@ func (th *TriageHandler) generateIssueBody(branch *api.Branch, vuln *api.Vulnera
 
 	summaryRow := ""
 	if vuln.Summary != "" {
-		summaryRow = fmt.Sprintf("<tr><td>__Summary:__</td><td>%s</td></tr>", vuln.Summary)
+		summaryRow = fmt.Sprintf("<tr><td><b>Summary:</b></td><td>%s</td></tr>", vuln.Summary)
 		if vuln.Details != "" {
 			summaryRow += fmt.Sprintf("\n<tr><td colspan=\"2\">%s</td></tr>", vuln.Details)
 		}
@@ -64,11 +64,11 @@ client how to move forward.
 First, determine if the vulnerability affects the project branch:
 
 <table>
-<tr><td>__Vulnerability:__<td>%s</td></tr>
+<tr><td><b>Vulnerability:</b><td>%s</td></tr>
 %s
-<tr><td>__Repository:__</td><td>%s</td></tr>
-<tr><td>__Branch:__</td><td>%s</td>
-<td><td>__Component:__</td><td>%s</td></tr>
+<tr><td><b>Repository:</b></td><td>%s</td></tr>
+<tr><td><b>Branch:</b></td><td>%s</td>
+<tr><td><b>Component:</b></td><td>%s</td></tr>
 </table>
 
 To register your assessment, determine if it affects the project branch and add
