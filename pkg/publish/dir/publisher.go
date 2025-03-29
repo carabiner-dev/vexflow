@@ -75,3 +75,7 @@ func (p *Publisher) PublishDocument(doc *vex.VEX) (*api.StatementNotice, error) 
 func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotice, error) {
 	return nil, fmt.Errorf("PublishAttestation not yet implemented")
 }
+
+func (p *Publisher) ReadBranchVEX(branch *api.Branch) ([]ampel.Envelope, error) {
+	return nil, fmt.Errorf("read vex from dirs not yet implemented")
+}

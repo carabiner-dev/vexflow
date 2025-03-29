@@ -4,11 +4,15 @@
 package github
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
 
 	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
+	"github.com/carabiner-dev/ampel/pkg/collector"
+	"github.com/carabiner-dev/ampel/pkg/filters"
+	ghatts "github.com/carabiner-dev/ampel/pkg/repository/github"
 	"github.com/carabiner-dev/bnd/pkg/bnd"
 	"github.com/carabiner-dev/bnd/pkg/upload"
 	"github.com/openvex/go-vex/pkg/vex"
@@ -87,4 +91,36 @@ func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotic
 		Published: time.Now(),
 		Location:  fmt.Sprintf("github.com/%s/%s", p.Options.Org, p.Options.Repo),
 	}, nil
+}
+
+func (p *Publisher) ReadBranchVEX(branch *api.Branch) ([]ampel.Envelope, error) {
+	// Create the collector to fetch attestations
+	ghcollector, err := ghatts.New(
+		ghatts.WithOwner(p.Options.Org),
+		ghatts.WithRepo(p.Options.Repo),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("building github attestations collector: %w", err)
+	}
+	agent, err := collector.New(collector.WithRepository(ghcollector))
+	if err != nil {
+		return nil, fmt.Errorf("building collector agent: %w", err)
+	}
+	attestations, err := agent.FetchAttestationsBySubject(context.Background(), []ampel.Subject{
+		branch.ToResourceDescriptor(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("fetching branch attestations: %w", err)
+	}
+
+	// Filter attestations to reteurn only the VEX docs
+	query := ampel.NewQuery().WithFilter(&filters.PredicateTypeMatcher{
+		PredicateTypes: map[ampel.PredicateType]struct{}{
+			ampel.PredicateType("https://openvex.dev/ns"):        {},
+			ampel.PredicateType("https://openvex.dev/ns@v0.2.0"): {},
+		},
+	})
+
+	// Run the query results:
+	return query.Run(attestations, ampel.WithMode(ampel.QueryModeOr)), nil
 }

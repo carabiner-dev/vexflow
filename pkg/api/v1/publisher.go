@@ -11,4 +11,5 @@ import (
 type VexPublisher interface {
 	PublishDocument(*vex.VEX) (*StatementNotice, error)
 	PublishAttestation(att ampel.Statement) (*StatementNotice, error)
+	ReadBranchVEX(*Branch) ([]ampel.Envelope, error)
 }

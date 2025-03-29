@@ -37,7 +37,11 @@ type managerImplementation interface {
 	ScanVulnerabilities(api.Scanner, *api.Branch) ([]*api.Vulnerability, error)
 
 	// FetchBranchVexes fetches any available VEX docs for the branch
-	FetchBranchVexes(*Options, *api.Branch) ([]*vex.VEX, error)
+	FetchBranchVexes(api.VexPublisher, *api.Branch) ([]attestation.Envelope, error)
+
+	// ExtractVexDocuments reads a list of attested VEX documents and extracts
+	// the vex data.
+	ExtractVexDocuments(*Options, []attestation.Envelope) ([]*vex.VEX, error)
 
 	// SuppressVulnerabilities reads in the available VEX data and suppresses
 	// the found vulnerabilities from the scanner findings.
@@ -390,8 +394,12 @@ func (di *defaultImplementation) FilterVulnerabilityTriages(triages []*api.Triag
 
 // FetchBranchVexes fetches any available VEX docs for the branch
 
-func (di *defaultImplementation) FetchBranchVexes(_ *Options, branch *api.Branch) ([]*vex.VEX, error) {
-	return nil, nil
+func (di *defaultImplementation) FetchBranchVexes(publisher api.VexPublisher, branch *api.Branch) ([]attestation.Envelope, error) {
+	atts, err := publisher.ReadBranchVEX(branch)
+	if err != nil {
+		return nil, fmt.Errorf("publisher error fetching attestations: %w", err)
+	}
+	return atts, nil
 }
 
 // SuppressVulnerabilities reads in the available VEX data and suppresses
@@ -400,4 +408,29 @@ func (di *defaultImplementation) SuppressVulnerabilities(
 	_ *Options, branch *api.Branch, vexes []*vex.VEX, vulns []*api.Vulnerability,
 ) ([]*api.Vulnerability, error) {
 	return vulns, nil
+}
+
+// ExtractVexDocuments reads a list of attested VEX documents and extracts
+// the vex data. At some point this function should validate the VEX
+// signatures and authors
+func (di *defaultImplementation) ExtractVexDocuments(_ *Options, attestations []attestation.Envelope) ([]*vex.VEX, error) {
+	ret := []*vex.VEX{}
+	for _, att := range attestations {
+		if att.GetStatement() == nil {
+			continue
+		}
+
+		pred := att.GetStatement().GetPredicate()
+		if pred == nil {
+			continue
+		}
+
+		doc, ok := att.GetStatement().GetPredicate().GetParsed().(*vex.VEX)
+		if !ok {
+			// Not a vex doc
+			continue
+		}
+		ret = append(ret, doc)
+	}
+	return ret, nil
 }

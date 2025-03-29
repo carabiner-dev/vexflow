@@ -89,11 +89,16 @@ func (mgr *Manager) UpdateBranchFlowWithScan(branch *api.Branch) error {
 	logrus.Infof("%d vulnerabilities found in branch", len(vulns))
 
 	// Fetch branch vexes for any vulnerabilities found
-	vexes, err := mgr.impl.FetchBranchVexes(&mgr.Options, branch)
+	vexAttestations, err := mgr.impl.FetchBranchVexes(mgr.publisher, branch)
 	if err != nil {
 		return fmt.Errorf("fetching VEX data: %w", err)
 	}
-	logrus.Infof("%d preexisting VEX documents found", len(vexes))
+	logrus.Infof("%d preexisting VEX documents found", len(vexAttestations))
+
+	vexes, err := mgr.impl.ExtractVexDocuments(&mgr.Options, vexAttestations)
+	if err != nil {
+		return fmt.Errorf("extracting VEX data: %w", err)
+	}
 
 	// Suppress any open vulns with the VEX data:
 	vulns, err = mgr.impl.SuppressVulnerabilities(&mgr.Options, branch, vexes, vulns)

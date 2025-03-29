@@ -3,8 +3,8 @@ module github.com/carabiner-dev/vexflow
 go 1.24.0
 
 require (
-	github.com/carabiner-dev/ampel v0.0.0-20250324000627-b703ff1eae8d
-	github.com/carabiner-dev/bnd v0.0.1-pre2.0.20250324030425-07a9dec2ee3c
+	github.com/carabiner-dev/ampel v0.0.0-20250327235342-e0eda9564e3d
+	github.com/carabiner-dev/bnd v0.0.1-pre2.0.20250328225921-5130f2f1024a
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
 	github.com/carabiner-dev/vcslocator v0.1.1
 	github.com/charmbracelet/lipgloss v1.1.0
@@ -41,6 +41,8 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blang/semver/v4 v4.0.0 // indirect
+	github.com/carabiner-dev/ghrfs v0.2.1 // indirect
 	github.com/carabiner-dev/github v0.2.2 // indirect
 	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
@@ -124,6 +126,7 @@ require (
 	github.com/moby/sys/signal v0.7.0 // indirect
 	github.com/moby/sys/user v0.1.0 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
+	github.com/nozzle/throttler v0.0.0-20180817012639-2ea982251481 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0 // indirect
