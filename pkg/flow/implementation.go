@@ -35,6 +35,14 @@ type managerImplementation interface {
 	// Scan vulnerabilities runs the configured scanner in the branch clone.
 	// This function errors if the scan clone does not exist.
 	ScanVulnerabilities(api.Scanner, *api.Branch) ([]*api.Vulnerability, error)
+
+	// FetchBranchVexes fetches any available VEX docs for the branch
+	FetchBranchVexes(*Options, *api.Branch) ([]*vex.VEX, error)
+
+	// SuppressVulnerabilities reads in the available VEX data and suppresses
+	// the found vulnerabilities from the scanner findings.
+	SuppressVulnerabilities(*Options, *api.Branch, []*vex.VEX, []*api.Vulnerability) ([]*api.Vulnerability, error)
+
 	ListBranchTriages(api.TriageBackend, *api.Branch) ([]*api.Triage, error)
 	ClassifyTriages([]*api.Triage) ([]*api.Triage, []*api.Triage, []*api.Triage)
 	UpdateTriages([]*api.Triage, []*api.Triage) error
@@ -378,4 +386,18 @@ func (di *defaultImplementation) FilterVulnerabilityTriages(triages []*api.Triag
 	}
 
 	return ret, nil
+}
+
+// FetchBranchVexes fetches any available VEX docs for the branch
+
+func (di *defaultImplementation) FetchBranchVexes(_ *Options, branch *api.Branch) ([]*vex.VEX, error) {
+	return nil, nil
+}
+
+// SuppressVulnerabilities reads in the available VEX data and suppresses
+// the found vulnerabilities from the scanner findings.
+func (di *defaultImplementation) SuppressVulnerabilities(
+	_ *Options, branch *api.Branch, vexes []*vex.VEX, vulns []*api.Vulnerability,
+) ([]*api.Vulnerability, error) {
+	return vulns, nil
 }

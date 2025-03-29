@@ -10,17 +10,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/carabiner-dev/ampel/pkg/attestation"
+	"github.com/carabiner-dev/ampel/pkg/formats/predicate/generic"
+	aosv "github.com/carabiner-dev/ampel/pkg/formats/predicate/osv"
+	"github.com/carabiner-dev/ampel/pkg/formats/statement/intoto"
+	"github.com/carabiner-dev/osv/go/osv"
 	"github.com/go-git/go-git/v5"
 	gointoto "github.com/in-toto/attestation/go/v1"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/carabiner-dev/ampel/pkg/attestation"
-	"github.com/carabiner-dev/ampel/pkg/formats/predicate/generic"
-	aosv "github.com/carabiner-dev/ampel/pkg/formats/predicate/osv"
-	"github.com/carabiner-dev/ampel/pkg/formats/statement/intoto"
-	"github.com/carabiner-dev/osv/go/osv"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
@@ -86,8 +86,21 @@ func (mgr *Manager) UpdateBranchFlowWithScan(branch *api.Branch) error {
 	if err != nil {
 		return fmt.Errorf("checking for vulnerabilities: %w", err)
 	}
-
 	logrus.Infof("%d vulnerabilities found in branch", len(vulns))
+
+	// Fetch branch vexes for any vulnerabilities found
+	vexes, err := mgr.impl.FetchBranchVexes(&mgr.Options, branch)
+	if err != nil {
+		return fmt.Errorf("fetching VEX data: %w", err)
+	}
+	logrus.Infof("%d preexisting VEX documents found", len(vexes))
+
+	// Suppress any open vulns with the VEX data:
+	vulns, err = mgr.impl.SuppressVulnerabilities(&mgr.Options, branch, vexes, vulns)
+	if err != nil {
+		return fmt.Errorf("suppressing vulnerabilities: %w", err)
+	}
+	logrus.Infof("%d vulnerabilities after suppressing with VEX", len(vulns))
 
 	triages, err := mgr.impl.ListBranchTriages(mgr.triageBackend, branch)
 	if err != nil {
