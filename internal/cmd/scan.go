@@ -35,7 +35,12 @@ type scanLocalOptions struct {
 	Attest bool
 }
 
-var scanFormats = []string{"table", "osv"}
+const (
+	formatTable = "table"
+	formatOSV   = "osv"
+)
+
+var scanFormats = []string{formatTable, formatOSV}
 
 // Validates the options in context with arguments
 func (so *scanLocalOptions) Validate() error {
@@ -69,7 +74,7 @@ func (so *scanLocalOptions) AddFlags(cmd *cobra.Command) {
 		&so.Path, "path", ".", "path top the codebase to scan",
 	)
 	cmd.PersistentFlags().StringVarP(
-		&so.Format, "format", "f", "table", fmt.Sprintf("output format (%+v)", scanFormats),
+		&so.Format, "format", "f", formatTable, fmt.Sprintf("output format (%+v)", scanFormats),
 	)
 
 	cmd.PersistentFlags().BoolVarP(
@@ -80,7 +85,7 @@ func (so *scanLocalOptions) AddFlags(cmd *cobra.Command) {
 func (sro *scanRemoteOptions) AddFlags(cmd *cobra.Command) {
 	sro.repoOptions.AddFlags(cmd)
 	cmd.PersistentFlags().StringVarP(
-		&sro.Format, "format", "f", "table", fmt.Sprintf("output format (%+v)", scanFormats),
+		&sro.Format, "format", "f", formatTable, fmt.Sprintf("output format (%+v)", scanFormats),
 	)
 
 	cmd.PersistentFlags().BoolVarP(
@@ -160,7 +165,7 @@ remote.
 				opts.Path = args[0]
 			}
 			if opts.Attest {
-				opts.Format = "osv"
+				opts.Format = formatOSV
 			}
 			return nil
 		},
@@ -185,7 +190,7 @@ remote.
 
 			var out io.Writer = os.Stdout
 
-			if opts.Format == "osv" {
+			if opts.Format == formatOSV {
 				if opts.Attest {
 					subj, err := mgr.LocalRepoToResourceDescriptor(opts.Path)
 					if err != nil {
@@ -291,7 +296,7 @@ to generate the attestation:
 				opts.RepoSlug = args[0]
 			}
 			if opts.Attest {
-				opts.Format = "osv"
+				opts.Format = formatOSV
 			}
 			return nil
 		},
@@ -318,7 +323,7 @@ to generate the attestation:
 
 			var out io.Writer = os.Stdout
 
-			if opts.Format == "osv" {
+			if opts.Format == formatOSV {
 				if opts.Attest {
 					att, err := mgr.VulnsToAttestation(branch.ToResourceDescriptor(), vulns)
 					if err != nil {
