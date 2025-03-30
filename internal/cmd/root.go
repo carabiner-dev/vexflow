@@ -43,6 +43,7 @@ func Execute() {
 	addUpdate(rootCmd)
 	addScan(rootCmd)
 	addLs(rootCmd)
+	addAssemble(rootCmd)
 	rootCmd.AddCommand(version.WithFont("doom"))
 
 	if err := rootCmd.Execute(); err != nil {

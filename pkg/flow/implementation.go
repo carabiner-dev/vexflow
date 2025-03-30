@@ -69,6 +69,11 @@ type managerImplementation interface {
 	// CloseRedundantTriages closes all triages for which a vulnerability is no
 	// longer present, usually because the affected components were updated in the branch.
 	CloseRedundantTriages(api.TriageBackend, []*api.Vulnerability, []*api.Triage) error
+
+	// FilterApplicableStatements returns all statements applicable to the vulnerabilities
+	FilterApplicableStatements([]*vex.VEX, []*api.Vulnerability) ([]*vex.Statement, error)
+
+	BuildDocument(*Options, []*vex.Statement) (*vex.VEX, error)
 }
 
 type defaultImplementation struct{}
@@ -144,6 +149,9 @@ func (di *defaultImplementation) EnsureBranchClones(opts *Options, branches []*a
 // ScanVulnerabilities scans the local clone of a branch and returns any found
 // vulnerabilities.
 func (di *defaultImplementation) ScanVulnerabilities(scanner api.Scanner, branch *api.Branch) ([]*api.Vulnerability, error) {
+	if scanner == nil {
+		return nil, fmt.Errorf("no scanner is configured")
+	}
 	vulns, err := scanner.GetBranchVulnerabilities(branch)
 	if err != nil {
 		return nil, err
@@ -433,4 +441,19 @@ func (di *defaultImplementation) ExtractVexDocuments(_ *Options, attestations []
 		ret = append(ret, doc)
 	}
 	return ret, nil
+}
+
+func (di *defaultImplementation) FilterApplicableStatements([]*vex.VEX, []*api.Vulnerability) ([]*vex.Statement, error) {
+	ret := []*vex.Statement{}
+	return ret, nil
+}
+
+func (di *defaultImplementation) BuildDocument(_ *Options, statements []*vex.Statement) (*vex.VEX, error) {
+	doc := vex.New()
+	doc.GenerateCanonicalID()
+	doc.Tooling = "http://github.com/carabiner.dev/vexflow"
+	for _, s := range statements {
+		doc.Statements = append(doc.Statements, *s)
+	}
+	return &doc, nil
 }

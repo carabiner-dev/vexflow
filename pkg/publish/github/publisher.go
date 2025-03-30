@@ -6,6 +6,7 @@ package github
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -94,6 +95,9 @@ func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotic
 }
 
 func (p *Publisher) ReadBranchVEX(branch *api.Branch) ([]ampel.Envelope, error) {
+	if p.Options.Org == "" || p.Options.Repo == "" {
+		return nil, errors.New("no repository data set in options")
+	}
 	// Create the collector to fetch attestations
 	ghcollector, err := ghatts.New(
 		ghatts.WithOwner(p.Options.Org),

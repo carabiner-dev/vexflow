@@ -17,6 +17,7 @@ import (
 	"github.com/carabiner-dev/osv/go/osv"
 	"github.com/go-git/go-git/v5"
 	gointoto "github.com/in-toto/attestation/go/v1"
+	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -432,4 +433,45 @@ func (mgr *Manager) ScanRemoteBranch(branch *api.Branch) ([]*api.Vulnerability, 
 		return nil, fmt.Errorf("checking for vulnerabilities: %w", err)
 	}
 	return vulns, nil
+}
+
+// AssembleBranchDocument gathers all VEX data applicable to vulnerabilities
+// present in the branch. This is intended to be run at build time, to compile
+// all exploitability data for the project.
+func (mgr *Manager) AssembleBranchDocument(branch *api.Branch) (*vex.VEX, error) {
+	// Ensure clones
+	if err := mgr.impl.EnsureBranchClones(&mgr.Options, []*api.Branch{branch}); err != nil {
+		return nil, fmt.Errorf("ensuring up to date clones: %w", err)
+	}
+	defer deleteTempClones([]*api.Branch{branch})
+
+	// Extract current vulnerabilities
+	vulns, err := mgr.impl.ScanVulnerabilities(mgr.scanner, branch)
+	if err != nil {
+		return nil, fmt.Errorf("checking for vulnerabilities: %w", err)
+	}
+	logrus.Infof("%d vulnerabilities found in branch", len(vulns))
+
+	// Fetch branch vexes for any vulnerabilities found
+	vexAttestations, err := mgr.impl.FetchBranchVexes(mgr.publisher, branch)
+	if err != nil {
+		return nil, fmt.Errorf("fetching VEX data: %w", err)
+	}
+	logrus.Infof("%d preexisting VEX documents found", len(vexAttestations))
+
+	vexes, err := mgr.impl.ExtractVexDocuments(&mgr.Options, vexAttestations)
+	if err != nil {
+		return nil, fmt.Errorf("extracting VEX data: %w", err)
+	}
+
+	statements, err := mgr.impl.FilterApplicableStatements(vexes, vulns)
+	if err != nil {
+		return nil, fmt.Errorf("filtering statements: %w", err)
+	}
+
+	doc, err := mgr.impl.BuildDocument(&mgr.Options, statements)
+	if err != nil {
+		return doc, fmt.Errorf("building document: %w", err)
+	}
+	return doc, nil
 }
