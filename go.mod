@@ -1,7 +1,6 @@
 module github.com/carabiner-dev/vexflow
 
 go 1.24.0
-
 require (
 	github.com/carabiner-dev/ampel v0.0.0-20250327235342-e0eda9564e3d
 	github.com/carabiner-dev/bnd v0.0.1-pre2.0.20250328225921-5130f2f1024a
@@ -21,7 +20,7 @@ require (
 	golang.org/x/oauth2 v0.28.0
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/yaml.v3 v3.0.1
-	sigs.k8s.io/release-utils v0.11.0
+	sigs.k8s.io/release-utils v0.11.1
 )
 
 require (
