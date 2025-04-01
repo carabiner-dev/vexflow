@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/carabiner-dev/hasher"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"
@@ -21,6 +22,7 @@ import (
 type assembleOptions struct {
 	repoOptions
 	outFileOptions
+	productFile []string
 }
 
 // Validates the options in context with arguments
@@ -40,6 +42,9 @@ func (ao *assembleOptions) Validate() error {
 func (ao *assembleOptions) AddFlags(cmd *cobra.Command) {
 	ao.repoOptions.AddFlags(cmd)
 	ao.outFileOptions.AddFlags(cmd)
+	cmd.PersistentFlags().StringSliceVarP(
+		&ao.productFile, "product", "p", nil, "files to add as additional products",
+	)
 }
 
 func addAssemble(parentCmd *cobra.Command) {
@@ -127,7 +132,14 @@ generated to STDOUT (or to the path specified by --out).
 				Name:       opts.BranchName,
 			}
 
-			doc, err := mgr.AssembleBranchDocument(branch)
+			h := hasher.New()
+			hashes, err := h.HashFiles(opts.productFile)
+			if err != nil {
+				return err
+			}
+			rds := hashes.ToResourceDescriptors()
+
+			doc, err := mgr.AssembleBranchDocument(branch, rds...)
 			if err != nil {
 				return fmt.Errorf("assembling doc: %w", err)
 			}

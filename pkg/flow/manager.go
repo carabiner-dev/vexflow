@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/carabiner-dev/ampel/pkg/attestation"
@@ -438,7 +439,7 @@ func (mgr *Manager) ScanRemoteBranch(branch *api.Branch) ([]*api.Vulnerability, 
 // AssembleBranchDocument gathers all VEX data applicable to vulnerabilities
 // present in the branch. This is intended to be run at build time, to compile
 // all exploitability data for the project.
-func (mgr *Manager) AssembleBranchDocument(branch *api.Branch) (*vex.VEX, error) {
+func (mgr *Manager) AssembleBranchDocument(branch *api.Branch, subjects ...*gointoto.ResourceDescriptor) (*vex.VEX, error) {
 	// Ensure clones
 	if err := mgr.impl.EnsureBranchClones(&mgr.Options, []*api.Branch{branch}); err != nil {
 		return nil, fmt.Errorf("ensuring up to date clones: %w", err)
@@ -469,9 +470,44 @@ func (mgr *Manager) AssembleBranchDocument(branch *api.Branch) (*vex.VEX, error)
 		return nil, fmt.Errorf("filtering statements: %w", err)
 	}
 
+	var newprods []*vex.Component
+	for _, subj := range subjects {
+		nprod := &vex.Component{
+			ID:     subj.GetUri(),
+			Hashes: map[vex.Algorithm]vex.Hash{},
+		}
+
+		// TODO(puerco): Add support for identifiers and parse name
+
+		for algo, hash := range subj.GetDigest() {
+			switch algo {
+			case gointoto.AlgorithmSHA256.String():
+				nprod.Hashes[vex.SHA256] = vex.Hash(hash)
+			case gointoto.AlgorithmSHA1.String():
+				nprod.Hashes[vex.SHA1] = vex.Hash(hash)
+			case gointoto.AlgorithmSHA512.String():
+				nprod.Hashes[vex.SHA512] = vex.Hash(hash)
+			default:
+				continue
+			}
+		}
+		newprods = append(newprods, nprod)
+	}
+
+	// If there are subjects, defined, add them as the new products
+	for _, s := range statements {
+		for _, comp := range newprods {
+			s.Products = append(s.Products, vex.Product{
+				Component:     *comp,
+				Subcomponents: slices.Clone(s.Products[0].Subcomponents),
+			})
+		}
+	}
+
 	doc, err := mgr.impl.BuildDocument(&mgr.Options, statements)
 	if err != nil {
 		return doc, fmt.Errorf("building document: %w", err)
 	}
+
 	return doc, nil
 }
