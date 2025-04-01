@@ -9,7 +9,9 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/release-utils/util"
 
+	"github.com/carabiner-dev/vexflow/internal/config"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	"github.com/carabiner-dev/vexflow/pkg/publish/dir"
@@ -20,6 +22,7 @@ import (
 
 type updateOptions struct {
 	repoOptions
+	ConfigPath  string
 	scan        bool
 	publishPath string
 }
@@ -42,6 +45,9 @@ func (to *updateOptions) AddFlags(cmd *cobra.Command) {
 	)
 	cmd.PersistentFlags().BoolVar(
 		&to.scan, "scan", true, "clone the repo and scan for new vulnerabilities",
+	)
+	cmd.PersistentFlags().StringVar(
+		&to.ConfigPath, "config", "vexflow.conf", "optional path to yaml configuration file",
 	)
 }
 
@@ -76,6 +82,19 @@ func addUpdate(parentCmd *cobra.Command) {
 		SilenceErrors:     true,
 		PersistentPreRunE: initLogging,
 		PreRunE: func(_ *cobra.Command, args []string) error {
+			if opts.ConfigPath != "" && util.Exists(opts.ConfigPath) {
+				data, err := config.Load(opts.ConfigPath)
+				if err != nil {
+					return fmt.Errorf("parsing config file: %w", err)
+				}
+
+				// TODO(puerco): The config supports a list of repos, the flag just
+				// one repo, but this will eventually need more.
+				if len(data.Repositories) > 0 {
+					opts.RepoSlug = data.Repositories[0]
+				}
+			}
+
 			if len(args) > 0 {
 				if opts.RepoSlug != "" && opts.RepoSlug != args[0] {
 					return fmt.Errorf("repository specified twice")
