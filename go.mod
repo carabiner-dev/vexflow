@@ -3,7 +3,7 @@ module github.com/carabiner-dev/vexflow
 go 1.24.0
 
 require (
-	github.com/carabiner-dev/ampel v0.0.0-20250327235342-e0eda9564e3d
+	github.com/carabiner-dev/ampel v0.0.0-20250401005950-5ae0d62bf810
 	github.com/carabiner-dev/bnd v0.0.1-pre2.0.20250328225921-5130f2f1024a
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
 	github.com/carabiner-dev/vcslocator v0.1.1
