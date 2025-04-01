@@ -88,9 +88,12 @@ func (s *Scanner) ingestScanResults(results *models.VulnerabilityResults) ([]*ap
 }
 
 func osvPackageToPackage(opkg *models.PackageInfo) (*api.Package, error) {
-	var ptype string
+	var gov, ptype string
 	switch opkg.Ecosystem {
 	case "Go":
+		if !strings.HasPrefix(opkg.Version, "v") {
+			gov = "v"
+		}
 		ptype = "golang"
 	default:
 		return nil, fmt.Errorf("unknown package ecosystem %s", opkg.Ecosystem)
@@ -100,6 +103,6 @@ func osvPackageToPackage(opkg *models.PackageInfo) (*api.Package, error) {
 		Type:    ptype,
 		Name:    opkg.Name,
 		Version: opkg.Version,
-		Purl:    fmt.Sprintf("pkg:%s/%s@%v", ptype, opkg.Name, opkg.Version),
+		Purl:    fmt.Sprintf("pkg:%s/%s@%s%s", ptype, opkg.Name, gov, opkg.Version),
 	}, nil
 }
