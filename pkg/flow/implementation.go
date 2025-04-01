@@ -20,6 +20,7 @@ import (
 	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
 
+	"github.com/carabiner-dev/vexflow/internal/index"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
@@ -443,15 +444,34 @@ func (di *defaultImplementation) ExtractVexDocuments(_ *Options, attestations []
 	return ret, nil
 }
 
-func (di *defaultImplementation) FilterApplicableStatements([]*vex.VEX, []*api.Vulnerability) ([]*vex.Statement, error) {
-	ret := []*vex.Statement{}
-	return ret, nil
+// FilterApplicableStatements gets all the VEX data for the branch and the
+// vulnerabilitirs list detected by the scanner and returns the VEX statements
+// that still matter. Those that don't (becasuse dependencies were upgraded
+// or removed are ignored).
+func (di *defaultImplementation) FilterApplicableStatements(docs []*vex.VEX, vulns []*api.Vulnerability) ([]*vex.Statement, error) {
+	idx, err := index.New(index.WithDocument(docs...))
+	if err != nil {
+		return nil, fmt.Errorf("indexing documents: %s", err)
+	}
+
+	vexVulns := []*vex.Vulnerability{}
+	for v := range vulns {
+		vexVulns = append(vexVulns, vulns[v].ToVexVuln())
+	}
+
+	statements := idx.Matches(
+		index.WithVulnerabilities(vexVulns...),
+	)
+
+	// TODO(puerco): Here, we should have an option to generate affected
+	// statements for any vuln that was not vexed.
+	return statements, nil
 }
 
 func (di *defaultImplementation) BuildDocument(_ *Options, statements []*vex.Statement) (*vex.VEX, error) {
 	doc := vex.New()
 	doc.GenerateCanonicalID()
-	doc.Tooling = "http://github.com/carabiner.dev/vexflow"
+	doc.Tooling = "http://github.com/carabiner-dev/vexflow"
 	for _, s := range statements {
 		doc.Statements = append(doc.Statements, *s)
 	}
