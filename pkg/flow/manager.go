@@ -470,7 +470,7 @@ func (mgr *Manager) AssembleBranchDocument(branch *api.Branch, subjects ...*goin
 		return nil, fmt.Errorf("filtering statements: %w", err)
 	}
 
-	var newprods []*vex.Component
+	newprods := []*vex.Component{}
 	for _, subj := range subjects {
 		nprod := &vex.Component{
 			ID:     subj.GetUri(),

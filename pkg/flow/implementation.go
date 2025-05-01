@@ -20,7 +20,7 @@ import (
 	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
 
-	"github.com/carabiner-dev/vexflow/internal/index"
+	vexindex "github.com/carabiner-dev/vexflow/internal/index"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
 
@@ -449,9 +449,9 @@ func (di *defaultImplementation) ExtractVexDocuments(_ *Options, attestations []
 // that still matter. Those that don't (becasuse dependencies were upgraded
 // or removed are ignored).
 func (di *defaultImplementation) FilterApplicableStatements(docs []*vex.VEX, vulns []*api.Vulnerability) ([]*vex.Statement, error) {
-	idx, err := index.New(index.WithDocument(docs...))
+	idx, err := vexindex.New(vexindex.WithDocument(docs...))
 	if err != nil {
-		return nil, fmt.Errorf("indexing documents: %s", err)
+		return nil, fmt.Errorf("indexing documents: %w", err)
 	}
 
 	vexVulns := []*vex.Vulnerability{}
@@ -460,7 +460,7 @@ func (di *defaultImplementation) FilterApplicableStatements(docs []*vex.VEX, vul
 	}
 
 	statements := idx.Matches(
-		index.WithVulnerabilities(vexVulns...),
+		vexindex.WithVulnerabilities(vexVulns...),
 	)
 
 	// TODO(puerco): Here, we should have an option to generate affected
@@ -470,7 +470,9 @@ func (di *defaultImplementation) FilterApplicableStatements(docs []*vex.VEX, vul
 
 func (di *defaultImplementation) BuildDocument(_ *Options, statements []*vex.Statement) (*vex.VEX, error) {
 	doc := vex.New()
-	doc.GenerateCanonicalID()
+	if _, err := doc.GenerateCanonicalID(); err != nil {
+		return nil, fmt.Errorf("generating doc ID: %w", err)
+	}
 	doc.Tooling = "http://github.com/carabiner-dev/vexflow"
 	for _, s := range statements {
 		doc.Statements = append(doc.Statements, *s)

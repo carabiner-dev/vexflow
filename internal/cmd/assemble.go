@@ -9,9 +9,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/carabiner-dev/hasher"
 	"github.com/spf13/cobra"
 
-	"github.com/carabiner-dev/hasher"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"

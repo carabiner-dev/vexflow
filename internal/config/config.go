@@ -11,11 +11,12 @@ import (
 	"sigs.k8s.io/release-utils/util"
 )
 
+// Load reads and parses the vexflow configuration file
 func Load(path string) (*Data, error) {
 	if !util.Exists(path) {
 		return nil, nil
 	}
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(path) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("reading config file: %w", err)
 	}
