@@ -1,6 +1,7 @@
 module github.com/carabiner-dev/vexflow
 
-go 1.24.1
+go 1.24.2
+
 require (
 	github.com/carabiner-dev/ampel v0.0.1-pre3
 	github.com/carabiner-dev/bnd v0.0.1-pre2.0.20250328225921-5130f2f1024a
