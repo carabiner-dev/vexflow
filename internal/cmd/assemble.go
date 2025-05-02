@@ -8,15 +8,24 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
+	"strings"
 
 	"github.com/carabiner-dev/hasher"
+	intoto "github.com/in-toto/attestation/go/v1"
 	"github.com/spf13/cobra"
+	"sigs.k8s.io/release-utils/util"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
 	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"
 	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
 	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+)
+
+var (
+	hashRegexStr = `^(\bsha1\b|\bsha256\b|\bsha512\b|\bsha3\b|\bgitCommit\b):([a-f0-9]+)$`
+	hashRegex    *regexp.Regexp
 )
 
 type assembleOptions struct {
@@ -43,7 +52,7 @@ func (ao *assembleOptions) AddFlags(cmd *cobra.Command) {
 	ao.repoOptions.AddFlags(cmd)
 	ao.outFileOptions.AddFlags(cmd)
 	cmd.PersistentFlags().StringSliceVarP(
-		&ao.productFile, "product", "p", nil, "files to add as additional products",
+		&ao.productFile, "product", "p", nil, "files or hashes to add as additional products",
 	)
 }
 
@@ -133,13 +142,25 @@ generated to STDOUT (or to the path specified by --out).
 			}
 
 			h := hasher.New()
-			hashes, err := h.HashFiles(opts.productFile)
+			var files = []string{}
+			var descriptors = []*intoto.ResourceDescriptor{}
+			for _, pf := range opts.productFile {
+				if util.Exists(pf) {
+					files = append(files, pf)
+				} else {
+					rd := stringToDescriptor(pf)
+					if rd != nil {
+						descriptors = append(descriptors, rd)
+					}
+				}
+			}
+			hashes, err := h.HashFiles(files)
 			if err != nil {
 				return err
 			}
-			rds := hashes.ToResourceDescriptors()
+			descriptors = append(descriptors, hashes.ToResourceDescriptors()...)
 
-			doc, err := mgr.AssembleBranchDocument(branch, rds...)
+			doc, err := mgr.AssembleBranchDocument(branch, descriptors...)
 			if err != nil {
 				return fmt.Errorf("assembling doc: %w", err)
 			}
@@ -150,4 +171,26 @@ generated to STDOUT (or to the path specified by --out).
 	}
 	opts.AddFlags(assembleCommand)
 	parentCmd.AddCommand(assembleCommand)
+}
+
+func stringToDescriptor(subjString string) *intoto.ResourceDescriptor {
+	if hashRegex == nil {
+		hashRegex = regexp.MustCompile(hashRegexStr)
+	}
+
+	// If the string matches algo:hexValue then we never try to look
+	// for a file. Never.
+	pts := hashRegex.FindStringSubmatch(subjString)
+	if pts == nil {
+		return nil
+	}
+
+	algo := strings.ToLower(pts[1])
+	if _, ok := intoto.HashAlgorithms[algo]; !ok {
+		return nil
+	}
+
+	return &intoto.ResourceDescriptor{
+		Digest: map[string]string{algo: pts[2]},
+	}
 }
