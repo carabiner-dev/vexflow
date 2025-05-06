@@ -142,8 +142,8 @@ generated to STDOUT (or to the path specified by --out).
 			}
 
 			h := hasher.New()
-			var files = []string{}
-			var descriptors = []*intoto.ResourceDescriptor{}
+			files := []string{}
+			descriptors := []*intoto.ResourceDescriptor{}
 			for _, pf := range opts.productFile {
 				if util.Exists(pf) {
 					files = append(files, pf)
