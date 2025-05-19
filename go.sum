@@ -124,8 +124,8 @@ github.com/carabiner-dev/hasher v0.2.2 h1:wYzqB/BeiK7/D+Ho1VofcjrzvnlAalre0AeFOB
 github.com/carabiner-dev/hasher v0.2.2/go.mod h1:bM7reKZ5gGEY4Bbcd3Lr2KhrtqNkEhJOmQ4ptGasnFY=
 github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92 h1:BJ9+OCNezZGkU8SrGC3oB7Tj+J0JsonwfZztcgUav6c=
 github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92/go.mod h1:o7jXwi/fFZ9mQlvVlog0kcvyEkwQT3eWmVQmrorBGpE=
-github.com/carabiner-dev/vcslocator v0.1.1 h1:22BD9PNm33VhGZrOiYG7nV0Agk507C2khRbCic72hGk=
-github.com/carabiner-dev/vcslocator v0.1.1/go.mod h1:ACv4Ic26ccgVYBOUIWsgzAtNRMFgNQDV3M6XI7la8Ro=
+github.com/carabiner-dev/vcslocator v0.2.2 h1:UXhuMUxtDiwGzfCxvpNJXRyqUY8qZl0+Ug3TjJluS4s=
+github.com/carabiner-dev/vcslocator v0.2.2/go.mod h1:/67gubbzxtg25MIg/eRlmBkHExFDqyVZ2Dj0VJatHwE=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
