@@ -9,7 +9,7 @@ require (
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
 	github.com/carabiner-dev/vcslocator v0.1.1
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
-	github.com/go-git/go-git/v5 v5.16.0
+	github.com/go-git/go-git/v5 v5.16.2
 	github.com/google/go-github/v60 v60.0.0
 	github.com/google/osv-scanner/v2 v2.0.2
 	github.com/google/uuid v1.6.0
