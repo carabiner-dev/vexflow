@@ -3,7 +3,7 @@ module github.com/carabiner-dev/vexflow
 go 1.24.4
 
 require (
-	github.com/carabiner-dev/ampel v0.0.1-pre3
+	github.com/carabiner-dev/ampel v0.0.1-pre9
 	github.com/carabiner-dev/bnd v0.1.3
 	github.com/carabiner-dev/hasher v0.2.2
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
@@ -42,8 +42,10 @@ require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
-	github.com/carabiner-dev/ghrfs v0.2.1 // indirect
+	github.com/carabiner-dev/ghrfs v0.3.2 // indirect
 	github.com/carabiner-dev/github v0.2.2 // indirect
+	github.com/carabiner-dev/jsonl v0.2.0 // indirect
+	github.com/carabiner-dev/openeox v0.0.0-20250430212020-e3a5beb42ddd // indirect
 	github.com/charmbracelet/colorprofile v0.2.3-0.20250311203215-f60798e515dc // indirect
 	github.com/charmbracelet/x/ansi v0.8.0 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
