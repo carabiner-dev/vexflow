@@ -258,10 +258,9 @@ func (m *Manager) VulnsToAttestation(subject *gointoto.ResourceDescriptor, vulns
 	}
 
 	predicate := &generic.Predicate{
-		Type:          aosv.PredicateType,
-		Parsed:        osvResults,
-		Data:          osvJSON,
-		Verifications: []*attestation.SignatureVerification{},
+		Type:   aosv.PredicateType,
+		Parsed: osvResults,
+		Data:   osvJSON,
 	}
 
 	s := intoto.NewStatement(
