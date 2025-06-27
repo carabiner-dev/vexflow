@@ -13,7 +13,7 @@ require (
 	github.com/google/go-github/v60 v60.0.0
 	github.com/google/osv-scanner/v2 v2.0.3
 	github.com/google/uuid v1.6.0
-	github.com/in-toto/attestation v1.1.2-0.20250128181946-c0b4d86cf712
+	github.com/in-toto/attestation v1.1.2
 	github.com/openvex/go-vex v0.2.5
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/sirupsen/logrus v1.9.3
