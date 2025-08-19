@@ -7,7 +7,7 @@ require (
 	github.com/carabiner-dev/bnd v0.2.2
 	github.com/carabiner-dev/hasher v0.2.2
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
-	github.com/carabiner-dev/vcslocator v0.3.1
+	github.com/carabiner-dev/vcslocator v0.3.2
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-git/go-git/v5 v5.16.2
 	github.com/google/go-github/v60 v60.0.0
@@ -20,7 +20,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/oauth2 v0.30.0
-	google.golang.org/protobuf v1.36.6
+	google.golang.org/protobuf v1.36.7
 	gopkg.in/yaml.v3 v3.0.1
 	sigs.k8s.io/release-utils v0.11.1
 )
