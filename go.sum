@@ -135,8 +135,8 @@ github.com/carabiner-dev/openeox v0.0.0-20250430212020-e3a5beb42ddd h1:WEQbh3d2h
 github.com/carabiner-dev/openeox v0.0.0-20250430212020-e3a5beb42ddd/go.mod h1:40KVT1ee6L8VoWT44RvAQ0AtG91MFr5/zBzTmNiXQWY=
 github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92 h1:BJ9+OCNezZGkU8SrGC3oB7Tj+J0JsonwfZztcgUav6c=
 github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92/go.mod h1:o7jXwi/fFZ9mQlvVlog0kcvyEkwQT3eWmVQmrorBGpE=
-github.com/carabiner-dev/vcslocator v0.3.1 h1:TIC7NfrBjMUkul9F+vvrDVIxxRqhsywjWy4L7WzdaMA=
-github.com/carabiner-dev/vcslocator v0.3.1/go.mod h1:jvYlXLVyqQqkBuSH/CiE1pbHifoPaAhWtUjLquHaBb0=
+github.com/carabiner-dev/vcslocator v0.3.2 h1:/rfhELG1mvqFq0xi8LQSkfpAVoQDCGlWoL6J5tX9Inw=
+github.com/carabiner-dev/vcslocator v0.3.2/go.mod h1:jvYlXLVyqQqkBuSH/CiE1pbHifoPaAhWtUjLquHaBb0=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/cenkalti/backoff/v5 v5.0.2 h1:rIfFVxEf1QsI7E1ZHfp/B4DF/6QBAUhmgkxc0H7Zss8=
@@ -521,8 +521,8 @@ github.com/opencontainers/selinux v1.12.0 h1:6n5JV4Cf+4y0KNXW48TLj5DwfXpvWlxXplU
 github.com/opencontainers/selinux v1.12.0/go.mod h1:BTPX+bjVbWGXw7ZZWUbdENt8w0htPSrlgOOysQaU62U=
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
-github.com/openvex/go-vex v0.2.5 h1:41utdp2rHgAGCsG+UbjmfMG5CWQxs15nGqir1eRgSrQ=
-github.com/openvex/go-vex v0.2.5/go.mod h1:j+oadBxSUELkrKh4NfNb+BPo77U3q7gdKME88IO/0Wo=
+github.com/openvex/go-vex v0.2.6 h1:Elv6fIOmxOrYQcQohxI3OS0OI6w1mZGAT5LWsIi2I8g=
+github.com/openvex/go-vex v0.2.6/go.mod h1:ZyQC3NXl9jjS53JOpBG3LAUXySkW8IlJ/GIhsnf5D54=
 github.com/ossf/osv-schema/bindings/go v0.0.0-20250804010012-a529c42c15de h1:4lHPN8y2EVTCX5Txoj7+aybi6ncNqhGGjUdEFHnpuT4=
 github.com/ossf/osv-schema/bindings/go v0.0.0-20250804010012-a529c42c15de/go.mod h1:lILztSxHU7VsdlYqCnwgxSDBhbXMf7iEQWtldJCDXPo=
 github.com/owenrumney/go-sarif/v3 v3.2.1 h1:Dogf2wkOxxRkG3O/B9T6dokyDSl36q19tlMYtXOTThE=
@@ -642,8 +642,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXlSw2iwfAo=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/stretchr/testify v1.10.0 h1:Xv5erBjTwe/5IxqUQTdXv5kgmIvbHo3QQyRwhJsOfJA=
-github.com/stretchr/testify v1.10.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+github.com/stretchr/testify v1.11.1 h1:7s2iGBzp5EwR7/aIZr8ao5+dra3wiQyKjjFuvgVKu7U=
+github.com/stretchr/testify v1.11.1/go.mod h1:wZwfW3scLgRK+23gO65QZefKpKQRnfz6sD981Nm4B6U=
 github.com/subosito/gotenv v1.6.0 h1:9NlTDc1FTs4qu0DDq7AEtTPNw6SVm7uBMsUCUjABIf8=
 github.com/subosito/gotenv v1.6.0/go.mod h1:Dk4QP5c2W3ibzajGcXpNraDfq2IrhjMIvMSWPKKo0FU=
 github.com/terminalstatic/go-xsd-validate v0.1.6 h1:TenYeQ3eY631qNi1/cTmLH/s2slHPRKTTHT+XSHkepo=
@@ -879,8 +879,8 @@ google.golang.org/protobuf v1.22.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2
 google.golang.org/protobuf v1.23.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
 google.golang.org/protobuf v1.23.1-0.20200526195155-81db48ad09cc/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
 google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlbajtzgsN7c=
-google.golang.org/protobuf v1.36.6 h1:z1NpPI8ku2WgiWnf+t9wTPsn6eP1L7ksHUlkfLvd9xY=
-google.golang.org/protobuf v1.36.6/go.mod h1:jduwjTPXsFjZGTmRluh+L6NjiWu7pchiJ2/5YcXBHnY=
+google.golang.org/protobuf v1.36.8 h1:xHScyCOEuuwZEc6UtSOvPbAT4zRh0xcNRYekJwfqyMc=
+google.golang.org/protobuf v1.36.8/go.mod h1:fuxRtAxBytpl4zzqUh6/eyUujkJdNiuEkXntxiD/uRU=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
