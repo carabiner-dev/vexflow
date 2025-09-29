@@ -14,13 +14,13 @@ require (
 	github.com/google/osv-scanner/v2 v2.2.2
 	github.com/google/uuid v1.6.0
 	github.com/in-toto/attestation v1.1.2
-	github.com/openvex/go-vex v0.2.6
+	github.com/openvex/go-vex v0.2.7
 	github.com/package-url/packageurl-go v0.1.3
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.10.1
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/oauth2 v0.31.0
-	google.golang.org/protobuf v1.36.8
+	google.golang.org/protobuf v1.36.9
 	gopkg.in/yaml.v3 v3.0.1
 	sigs.k8s.io/release-utils v0.12.0
 )
