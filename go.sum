@@ -521,8 +521,8 @@ github.com/opencontainers/selinux v1.12.0 h1:6n5JV4Cf+4y0KNXW48TLj5DwfXpvWlxXplU
 github.com/opencontainers/selinux v1.12.0/go.mod h1:BTPX+bjVbWGXw7ZZWUbdENt8w0htPSrlgOOysQaU62U=
 github.com/opentracing/opentracing-go v1.2.0 h1:uEJPy/1a5RIPAJ0Ov+OIO8OxWu77jEv+1B0VhjKrZUs=
 github.com/opentracing/opentracing-go v1.2.0/go.mod h1:GxEUsuufX4nBwe+T+Wl9TAgYrxe9dPLANfrWvHYVTgc=
-github.com/openvex/go-vex v0.2.6 h1:Elv6fIOmxOrYQcQohxI3OS0OI6w1mZGAT5LWsIi2I8g=
-github.com/openvex/go-vex v0.2.6/go.mod h1:ZyQC3NXl9jjS53JOpBG3LAUXySkW8IlJ/GIhsnf5D54=
+github.com/openvex/go-vex v0.2.7 h1:/pN3bqvS4QOc6WkkL0hbKzJuAtsUD9vmvk9IZkzD3Zc=
+github.com/openvex/go-vex v0.2.7/go.mod h1:ZyQC3NXl9jjS53JOpBG3LAUXySkW8IlJ/GIhsnf5D54=
 github.com/ossf/osv-schema/bindings/go v0.0.0-20250804010012-a529c42c15de h1:4lHPN8y2EVTCX5Txoj7+aybi6ncNqhGGjUdEFHnpuT4=
 github.com/ossf/osv-schema/bindings/go v0.0.0-20250804010012-a529c42c15de/go.mod h1:lILztSxHU7VsdlYqCnwgxSDBhbXMf7iEQWtldJCDXPo=
 github.com/owenrumney/go-sarif/v3 v3.2.1 h1:Dogf2wkOxxRkG3O/B9T6dokyDSl36q19tlMYtXOTThE=
@@ -879,8 +879,8 @@ google.golang.org/protobuf v1.22.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2
 google.golang.org/protobuf v1.23.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
 google.golang.org/protobuf v1.23.1-0.20200526195155-81db48ad09cc/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
 google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlbajtzgsN7c=
-google.golang.org/protobuf v1.36.8 h1:xHScyCOEuuwZEc6UtSOvPbAT4zRh0xcNRYekJwfqyMc=
-google.golang.org/protobuf v1.36.8/go.mod h1:fuxRtAxBytpl4zzqUh6/eyUujkJdNiuEkXntxiD/uRU=
+google.golang.org/protobuf v1.36.9 h1:w2gp2mA27hUeUzj9Ex9FBjsBm40zfaDtEWow293U7Iw=
+google.golang.org/protobuf v1.36.9/go.mod h1:fuxRtAxBytpl4zzqUh6/eyUujkJdNiuEkXntxiD/uRU=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
