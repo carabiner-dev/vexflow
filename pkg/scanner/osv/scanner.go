@@ -61,7 +61,7 @@ func (s *Scanner) ingestScanResults(results *models.VulnerabilityResults) ([]*ap
 				// Build the aliases list
 				aliases := []string{}
 				id := ""
-				for _, alias := range result.Packages[i].Vulnerabilities[j].Aliases {
+				for _, alias := range result.Packages[i].Vulnerabilities[j].GetAliases() {
 					if strings.HasPrefix(alias, "CVE-") && id == "" {
 						id = alias
 						continue
@@ -70,15 +70,15 @@ func (s *Scanner) ingestScanResults(results *models.VulnerabilityResults) ([]*ap
 				}
 
 				if id == "" {
-					id = result.Packages[i].Vulnerabilities[i].ID
+					id = result.Packages[i].Vulnerabilities[i].GetId()
 				} else {
-					aliases = append(aliases, result.Packages[i].Vulnerabilities[j].ID)
+					aliases = append(aliases, result.Packages[i].Vulnerabilities[j].GetId())
 				}
 				ret = append(ret, &api.Vulnerability{
 					ID:        id,
 					Aliases:   aliases,
-					Summary:   result.Packages[i].Vulnerabilities[j].Summary,
-					Details:   result.Packages[i].Vulnerabilities[j].Details,
+					Summary:   result.Packages[i].Vulnerabilities[j].GetSummary(),
+					Details:   result.Packages[i].Vulnerabilities[j].GetDetails(),
 					Component: pkg,
 				})
 			}
