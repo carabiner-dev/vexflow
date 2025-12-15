@@ -138,8 +138,8 @@ github.com/carabiner-dev/ghrfs v0.3.2 h1:SBxmC7H2efJzebzrpZNsXB/03eZTeBORguXvKft
 github.com/carabiner-dev/ghrfs v0.3.2/go.mod h1:xRewpmbdE766e+XlKfcH+p/KcObAflOIwNq6s7TARb0=
 github.com/carabiner-dev/github v0.2.2 h1:Ykrlcct71fRQm4j37LhAz9FyzG4n1nlm2e+V62MIoJM=
 github.com/carabiner-dev/github v0.2.2/go.mod h1:J7VqMAUewwRQH6r6HMDmVNf39f/z7H5iyTzOfC8am9A=
-github.com/carabiner-dev/hasher v0.2.2 h1:wYzqB/BeiK7/D+Ho1VofcjrzvnlAalre0AeFOB3KmxM=
-github.com/carabiner-dev/hasher v0.2.2/go.mod h1:bM7reKZ5gGEY4Bbcd3Lr2KhrtqNkEhJOmQ4ptGasnFY=
+github.com/carabiner-dev/hasher v0.2.3 h1:678/FKyUJexzDznoIomnW/Z71hoL6Ehz99W2ZP2ACxE=
+github.com/carabiner-dev/hasher v0.2.3/go.mod h1:TRannDvJs5eL61xA/K/whtYbZLQPb/CGFXtDnx4h37M=
 github.com/carabiner-dev/jsonl v0.2.0 h1:PuEV8g3GRAXe2muHWqvTWewyhXRxMSb5gnOmiqc4MJI=
 github.com/carabiner-dev/jsonl v0.2.0/go.mod h1:H0ac1z6a6AEvRx1+laZrztAdGoYuB/CVlGXK5nHHQyI=
 github.com/carabiner-dev/openeox v0.0.0-20250430212020-e3a5beb42ddd h1:WEQbh3d2h0x2BIwrIQWeBqlGugjVfIgXSKX/4mNxkjA=
@@ -939,8 +939,8 @@ google.golang.org/protobuf v1.22.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2
 google.golang.org/protobuf v1.23.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
 google.golang.org/protobuf v1.23.1-0.20200526195155-81db48ad09cc/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
 google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlbajtzgsN7c=
-google.golang.org/protobuf v1.36.10 h1:AYd7cD/uASjIL6Q9LiTjz8JLcrh/88q5UObnmY3aOOE=
-google.golang.org/protobuf v1.36.10/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
+google.golang.org/protobuf v1.36.11 h1:fV6ZwhNocDyBLK0dj+fg8ektcVegBBuEolpbTQyBNVE=
+google.golang.org/protobuf v1.36.11/go.mod h1:HTf+CrKn2C3g5S8VImy6tdcUvCska2kB7j23XfzDpco=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntNwaWcugrBjAiHlqqRiVk=
