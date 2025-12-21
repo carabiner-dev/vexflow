@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/carabiner-dev/ampel v0.0.1-pre9.0.20250625055119-2ae04903ae66
 	github.com/carabiner-dev/bnd v0.2.2
-	github.com/carabiner-dev/hasher v0.2.2
+	github.com/carabiner-dev/hasher v0.2.3
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
 	github.com/carabiner-dev/vcslocator v0.3.2
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
@@ -20,7 +20,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/oauth2 v0.34.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/protobuf v1.36.11
 	gopkg.in/yaml.v3 v3.0.1
 	sigs.k8s.io/release-utils v0.12.0
 )
