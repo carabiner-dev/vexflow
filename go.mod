@@ -1,6 +1,6 @@
 module github.com/carabiner-dev/vexflow
 
-go 1.25.5
+go 1.25.7
 
 require (
 	github.com/carabiner-dev/ampel v0.0.1-pre9.0.20250625055119-2ae04903ae66
@@ -11,7 +11,7 @@ require (
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-git/go-git/v5 v5.16.5
 	github.com/google/go-github/v60 v60.0.0
-	github.com/google/osv-scanner/v2 v2.3.2
+	github.com/google/osv-scanner/v2 v2.3.3
 	github.com/google/uuid v1.6.0
 	github.com/in-toto/attestation v1.1.2
 	github.com/openvex/go-vex v0.2.7
@@ -30,12 +30,12 @@ require (
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cyphar.com/go-pathrs v0.2.1 // indirect
 	dario.cat/mergo v1.0.2 // indirect
-	deps.dev/api/v3 v3.0.0-20251219105704-58e32bc05c71 // indirect
-	deps.dev/api/v3alpha v0.0.0-20251219105704-58e32bc05c71 // indirect
-	deps.dev/util/maven v0.0.0-20251219105704-58e32bc05c71 // indirect
+	deps.dev/api/v3 v3.0.0-20260112033243-1270359b191b // indirect
+	deps.dev/api/v3alpha v0.0.0-20260112033243-1270359b191b // indirect
+	deps.dev/util/maven v0.0.0-20260112033243-1270359b191b // indirect
 	deps.dev/util/pypi v0.0.0-20250903005441-604c45d5b44b // indirect
-	deps.dev/util/resolve v0.0.0-20251219105704-58e32bc05c71 // indirect
-	deps.dev/util/semver v0.0.0-20251219105704-58e32bc05c71 // indirect
+	deps.dev/util/resolve v0.0.0-20260112033243-1270359b191b // indirect
+	deps.dev/util/semver v0.0.0-20260112033243-1270359b191b // indirect
 	github.com/AdaLogics/go-fuzz-headers v0.0.0-20240806141605-e8a1dd7889d6 // indirect
 	github.com/AdamKorcz/go-118-fuzz-build v0.0.0-20250520111509-a70c2aa677fa // indirect
 	github.com/BurntSushi/toml v1.6.0 // indirect
@@ -130,11 +130,12 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/go-containerregistry v0.20.6 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
-	github.com/google/osv-scalibr v0.4.2-0.20260109123902-cf20290d7624 // indirect
+	github.com/google/osv-scalibr v0.4.3-0.20260204140443-347932c398c6 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-7 // indirect
 	github.com/ianlancetaylor/demangle v0.0.0-20251118225945-96ee0021ea0f // indirect
+	github.com/icholy/digest v1.1.0 // indirect
 	github.com/in-toto/in-toto-golang v0.9.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
@@ -176,7 +177,7 @@ require (
 	github.com/opencontainers/runtime-spec v1.2.1 // indirect
 	github.com/opencontainers/selinux v1.13.0 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/ossf/osv-schema/bindings/go v0.0.0-20251230224438-88c48750ddae // indirect
+	github.com/ossf/osv-schema/bindings/go v0.0.0-20260114034825-230b4a2f4d73 // indirect
 	github.com/owenrumney/go-sarif/v3 v3.3.0 // indirect
 	github.com/pandatix/go-cvss v0.6.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
@@ -249,21 +250,21 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.46.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/exp v0.0.0-20250711185948-6ae5c78190dc // indirect
-	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/mod v0.31.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/telemetry v0.0.0-20251111182119-bc8e575c7b54 // indirect
+	golang.org/x/telemetry v0.0.0-20251203150158-8fff8a5912fc // indirect
 	golang.org/x/term v0.39.0 // indirect
-	golang.org/x/text v0.32.0 // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20251222181119-0a764e51fe1b // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20251213004720-97cd9d5aeac2 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260112192933-99fd39fd28a9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251222181119-0a764e51fe1b // indirect
 	google.golang.org/grpc v1.78.0 // indirect
 	gopkg.in/ini.v1 v1.67.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
@@ -272,7 +273,7 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.11.0 // indirect
 	modernc.org/sqlite v1.38.0 // indirect
-	osv.dev/bindings/go v0.0.0-20260109041851-2d38aed9758f // indirect
+	osv.dev/bindings/go v0.0.0-20260119002423-9eebd248ed28 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 	www.velocidex.com/golang/go-ntfs v0.2.0 // indirect
 	www.velocidex.com/golang/regparser v0.0.0-20250203141505-31e704a67ef7 // indirect
