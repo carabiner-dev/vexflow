@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/in-toto/attestation v1.1.2
 	github.com/openvex/go-vex v0.2.7
-	github.com/package-url/packageurl-go v0.1.4
+	github.com/package-url/packageurl-go v0.1.5
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1

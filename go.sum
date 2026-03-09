@@ -569,8 +569,8 @@ github.com/ossf/osv-schema/bindings/go v0.0.0-20260114034825-230b4a2f4d73 h1:4Mh
 github.com/ossf/osv-schema/bindings/go v0.0.0-20260114034825-230b4a2f4d73/go.mod h1:Eo7R19vlnflsCRdHW1ynyNUyoRwxdaTmTWD9MtKnJTc=
 github.com/owenrumney/go-sarif/v3 v3.3.0 h1:p5oSxEV0uPWBRpAspTmwWr4t1YZyKUpdoFzSB7WE90A=
 github.com/owenrumney/go-sarif/v3 v3.3.0/go.mod h1:72MaugkExDexbSauRuPq6BvUAAqAX0TwoNYMIQyZCMw=
-github.com/package-url/packageurl-go v0.1.4 h1:RHfiiN1SSY+Kic537DXch6fy593rxGJW6WDzAiOwNdk=
-github.com/package-url/packageurl-go v0.1.4/go.mod h1:nKAWB8E6uk1MHqiS/lQb9pYBGH2+mdJ2PJc2s50dQY0=
+github.com/package-url/packageurl-go v0.1.5 h1:O4efRXja2XQ5CtiiYiCZ22k/m7i5ugLiAghgcC+eDgk=
+github.com/package-url/packageurl-go v0.1.5/go.mod h1:nKAWB8E6uk1MHqiS/lQb9pYBGH2+mdJ2PJc2s50dQY0=
 github.com/pandatix/go-cvss v0.6.2 h1:TFiHlzUkT67s6UkelHmK6s1INKVUG7nlKYiWWDTITGI=
 github.com/pandatix/go-cvss v0.6.2/go.mod h1:jDXYlQBZrc8nvrMUVVvTG8PhmuShOnKrxP53nOFkt8Q=
 github.com/pelletier/go-toml/v2 v2.2.4 h1:mye9XuhQ6gvn5h28+VilKrrPoQVanw5PMw/TB0t5Ec4=
