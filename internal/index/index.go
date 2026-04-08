@@ -143,7 +143,7 @@ func WithProduct(prod *vex.Product) FilterFunc {
 	return func(si *StatementIndex) Filter {
 		return func() map[*vex.Statement]struct{} {
 			ret := map[*vex.Statement]struct{}{}
-			ids := []string{}
+			ids := make([]string, 0, len(prod.Identifiers)+len(prod.Hashes))
 			for _, id := range prod.Identifiers {
 				ids = append(ids, id)
 			}
@@ -169,7 +169,7 @@ func WithSubcomponent(subc *vex.Subcomponent) FilterFunc {
 	return func(si *StatementIndex) Filter {
 		return func() map[*vex.Statement]struct{} {
 			ret := map[*vex.Statement]struct{}{}
-			ids := []string{}
+			ids := make([]string, 0, len(subc.Identifiers)+len(subc.Hashes))
 			for _, id := range subc.Identifiers {
 				ids = append(ids, id)
 			}
@@ -234,7 +234,7 @@ func unionIndexResults(results []map[*vex.Statement]struct{}) []*vex.Statement {
 
 // Matches applies filters to the index to look for matching statements
 func (si *StatementIndex) Matches(filterfunc ...FilterFunc) []*vex.Statement {
-	lists := []map[*vex.Statement]struct{}{}
+	lists := make([]map[*vex.Statement]struct{}, 0, len(filterfunc))
 	for _, ffunc := range filterfunc {
 		filter := ffunc(si)
 		lists = append(lists, filter())

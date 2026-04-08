@@ -196,7 +196,7 @@ func (di *defaultImplementation) dedupeVulns(vulns []*api.Vulnerability) []*api.
 		}
 	}
 
-	ret := []*api.Vulnerability{}
+	ret := make([]*api.Vulnerability, 0, len(index))
 	for _, v := range index {
 		ret = append(ret, v)
 	}
