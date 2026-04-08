@@ -20,8 +20,8 @@ func TestProcessOSVreport(t *testing.T) {
 	require.NotNil(t, vulns)
 	require.Len(t, vulns, 4)
 
-	ids := []string{}
-	packages := []string{}
+	ids := make([]string, 0, len(vulns))
+	packages := make([]string, 0, len(vulns))
 	for _, v := range vulns {
 		ids = append(ids, v.ID)
 		packages = append(packages, v.Component.Purl)
