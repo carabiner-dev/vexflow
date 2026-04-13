@@ -21,7 +21,7 @@ jobs:
       
     steps:
       - name: Setup bnd
-        uses: carabiner-dev/actions/install/bnd@ba6f58b7120233bc312a76fb6bf3397704bcdcef # v1.1.5
+        uses: carabiner-dev/actions/install/bnd@360ffa1eb909b0105d4eccb6d6ef337911c34952 # v1.1.6
 
       - name: Check out code
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -35,7 +35,7 @@ jobs:
           cache: false
 
       - name: Install tejolote
-        uses: kubernetes-sigs/release-actions/setup-tejolote@cbe0488670ad0c0ff422fbef963da3bfe451a891 # v0.4.2
+        uses: kubernetes-sigs/release-actions/setup-tejolote@8753ea6bdadb814d779c6ec34eaca689dbfb492b # v0.4.3
 
       - name: Set tag output
         id: tag
@@ -62,7 +62,7 @@ jobs:
 
       - name: Generate SBOM
         id: sbom
-        uses: carabiner-dev/actions/unpack/sbom@ba6f58b7120233bc312a76fb6bf3397704bcdcef # v1.1.5
+        uses: carabiner-dev/actions/unpack/sbom@360ffa1eb909b0105d4eccb6d6ef337911c34952 # v1.1.6
         with:
           push-to-release: ${{ steps.tag.outputs.tag_name }}
         env:
