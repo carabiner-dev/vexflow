@@ -5,17 +5,17 @@ go 1.26.1
 require (
 	github.com/carabiner-dev/ampel v0.0.1-pre9.0.20250625055119-2ae04903ae66
 	github.com/carabiner-dev/bnd v0.2.2
-	github.com/carabiner-dev/hasher v0.2.3
+	github.com/carabiner-dev/hasher v0.2.4
 	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
-	github.com/carabiner-dev/vcslocator v0.4.2
+	github.com/carabiner-dev/vcslocator v0.4.3
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
-	github.com/go-git/go-git/v5 v5.17.2
+	github.com/go-git/go-git/v5 v5.18.0
 	github.com/google/go-github/v60 v60.0.0
 	github.com/google/osv-scanner/v2 v2.3.5
 	github.com/google/uuid v1.6.0
 	github.com/in-toto/attestation v1.2.0
 	github.com/openvex/go-vex v0.2.8
-	github.com/package-url/packageurl-go v0.1.5
+	github.com/package-url/packageurl-go v0.1.6
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
@@ -255,16 +255,16 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/crypto v0.50.0 // indirect
 	golang.org/x/exp v0.0.0-20250711185948-6ae5c78190dc // indirect
-	golang.org/x/mod v0.32.0 // indirect
-	golang.org/x/net v0.51.0 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260109210033-bd525da824e2 // indirect
-	golang.org/x/term v0.40.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
-	golang.org/x/tools v0.41.0 // indirect
+	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260311193753-579e4da9a98c // indirect
+	golang.org/x/term v0.42.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/genproto v0.0.0-20250707201910-8d1bb00bc6a7 // indirect
