@@ -296,6 +296,7 @@ func (di *defaultImplementation) TriagesToAttestation(triages []*api.Triage) (*i
 			continue
 		}
 		subjects = append(subjects, t.Branch.ToResourceDescriptor())
+		done[t.Branch.Identifier()] = struct{}{}
 	}
 	return intoto.NewStatement(
 		intoto.WithPredicate(predicate),

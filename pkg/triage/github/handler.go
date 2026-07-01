@@ -289,7 +289,8 @@ func (th *TriageHandler) ReadTriageStatus(t *api.Triage) error {
 			}
 
 			if err := validateSlashCommand(slashCommand); err != nil {
-				return err
+				logrus.Warnf("Ignoring invalid slash command %q from comment #%d: %s", slashCommand.Command, i, err)
+				continue
 			}
 
 			currentStatus = api.StatusWaitingForStatement
