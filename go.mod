@@ -6,7 +6,7 @@ require (
 	github.com/carabiner-dev/ampel v0.0.1-pre9.0.20250625055119-2ae04903ae66
 	github.com/carabiner-dev/bnd v0.2.2
 	github.com/carabiner-dev/hasher v0.2.4
-	github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92
+	github.com/carabiner-dev/osv v0.1.1
 	github.com/carabiner-dev/vcslocator v0.4.4
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-git/go-git/v5 v5.19.1
