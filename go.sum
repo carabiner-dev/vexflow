@@ -147,8 +147,8 @@ github.com/carabiner-dev/jsonl v0.2.0 h1:PuEV8g3GRAXe2muHWqvTWewyhXRxMSb5gnOmiqc
 github.com/carabiner-dev/jsonl v0.2.0/go.mod h1:H0ac1z6a6AEvRx1+laZrztAdGoYuB/CVlGXK5nHHQyI=
 github.com/carabiner-dev/openeox v0.0.0-20250430212020-e3a5beb42ddd h1:WEQbh3d2h0x2BIwrIQWeBqlGugjVfIgXSKX/4mNxkjA=
 github.com/carabiner-dev/openeox v0.0.0-20250430212020-e3a5beb42ddd/go.mod h1:40KVT1ee6L8VoWT44RvAQ0AtG91MFr5/zBzTmNiXQWY=
-github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92 h1:BJ9+OCNezZGkU8SrGC3oB7Tj+J0JsonwfZztcgUav6c=
-github.com/carabiner-dev/osv v0.0.0-20250124012120-b8ce4531cd92/go.mod h1:o7jXwi/fFZ9mQlvVlog0kcvyEkwQT3eWmVQmrorBGpE=
+github.com/carabiner-dev/osv v0.1.1 h1:koVLTk5BpeV2ARvLtz7YNy2QgNGC1REUOXOCcPvIaaY=
+github.com/carabiner-dev/osv v0.1.1/go.mod h1:V4+Ai2X1/iTqzdd4xDrdjQ+LXs0ov9OdD6b6Hfjp/Jc=
 github.com/carabiner-dev/vcslocator v0.4.4 h1:5uzb2yKfslMHY9RkkpUW28jLx2iVX93Al/GjSvG/2Ok=
 github.com/carabiner-dev/vcslocator v0.4.4/go.mod h1:qfYEs44nf9Fm/kiN120rTgruJn7PoHQyLXWQ9aO+SwE=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
