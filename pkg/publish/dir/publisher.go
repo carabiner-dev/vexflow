@@ -72,8 +72,25 @@ func (p *Publisher) PublishDocument(doc *vex.VEX) (*api.StatementNotice, error) 
 	}, nil
 }
 
+// PublishAttestation extracts the VEX document from the attestation predicate
+// and writes it to the configured directory via PublishDocument.
 func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotice, error) {
-	return nil, fmt.Errorf("PublishAttestation not yet implemented")
+	pred := att.GetPredicate()
+	if pred == nil {
+		return nil, fmt.Errorf("attestation has no predicate")
+	}
+
+	data := pred.GetData()
+	if len(data) == 0 {
+		return nil, fmt.Errorf("attestation predicate has no data")
+	}
+
+	doc, err := vex.Parse(data)
+	if err != nil {
+		return nil, fmt.Errorf("parsing VEX document from predicate: %w", err)
+	}
+
+	return p.PublishDocument(doc)
 }
 
 func (p *Publisher) ReadBranchVEX(branch *api.Branch) ([]ampel.Envelope, error) {
