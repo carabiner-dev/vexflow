@@ -6,7 +6,7 @@ require (
 	github.com/carabiner-dev/ampel v0.0.1-pre9.0.20250625055119-2ae04903ae66
 	github.com/carabiner-dev/bnd v0.2.2
 	github.com/carabiner-dev/hasher v0.2.4
-	github.com/carabiner-dev/osv v0.1.1
+	github.com/carabiner-dev/osv v0.1.2
 	github.com/carabiner-dev/vcslocator v0.4.7
 	github.com/charmbracelet/lipgloss v1.1.1-0.20250404203927-76690c660834
 	github.com/go-git/go-git/v5 v5.19.2
@@ -20,7 +20,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/oauth2 v0.36.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 	sigs.k8s.io/release-utils v0.12.0
 )
@@ -181,7 +181,7 @@ require (
 	github.com/opencontainers/runtime-spec v1.2.1 // indirect
 	github.com/opencontainers/selinux v1.13.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/ossf/osv-schema/bindings/go v0.0.0-20260304051245-ec3272c283e4 // indirect
+	github.com/ossf/osv-schema/bindings/go v0.0.0-20260730052020-9509daabeece // indirect
 	github.com/owenrumney/go-sarif/v3 v3.3.0 // indirect
 	github.com/pandatix/go-cvss v0.6.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
