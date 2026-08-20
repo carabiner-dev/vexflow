@@ -14,7 +14,7 @@ import (
 	"github.com/carabiner-dev/hasher"
 	intoto "github.com/in-toto/attestation/go/v1"
 	"github.com/spf13/cobra"
-	"sigs.k8s.io/release-utils/util"
+	"sigs.k8s.io/release-utils/helpers"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 	"github.com/carabiner-dev/vexflow/pkg/flow"
@@ -145,7 +145,7 @@ generated to STDOUT (or to the path specified by --out).
 			files := []string{}
 			descriptors := []*intoto.ResourceDescriptor{}
 			for _, pf := range opts.productFile {
-				if util.Exists(pf) {
+				if helpers.Exists(pf) {
 					files = append(files, pf)
 				} else {
 					rd := stringToDescriptor(pf)

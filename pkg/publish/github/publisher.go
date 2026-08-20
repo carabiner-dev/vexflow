@@ -10,14 +10,14 @@ import (
 	"fmt"
 	"time"
 
-	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
-	"github.com/carabiner-dev/ampel/pkg/collector"
-	"github.com/carabiner-dev/ampel/pkg/filters"
-	ghatts "github.com/carabiner-dev/ampel/pkg/repository/github"
-	"github.com/carabiner-dev/bnd/pkg/bnd"
-	"github.com/carabiner-dev/bnd/pkg/upload"
+	"github.com/carabiner-dev/attestation"
+	"github.com/carabiner-dev/collector"
+	bundleenv "github.com/carabiner-dev/collector/envelope/bundle"
+	"github.com/carabiner-dev/collector/filters"
+	cdgh "github.com/carabiner-dev/collector/repository/github"
+	"github.com/carabiner-dev/signer"
 	"github.com/openvex/go-vex/pkg/vex"
-	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
 )
@@ -63,29 +63,35 @@ func (p *Publisher) PublishDocument(doc *vex.VEX) (*api.StatementNotice, error) 
 	return nil, fmt.Errorf("PublishDocument not yet implemented")
 }
 
-// PublishAttestation pushes an attestes VEX document to the GitHub attestations
-// store configured in the uploader.
-func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotice, error) {
-	signer := bnd.NewSigner()
+// PublishAttestation pushes an attested VEX document to the GitHub
+// attestations store for the configured repository.
+func (p *Publisher) PublishAttestation(att attestation.Statement) (*api.StatementNotice, error) {
+	sg := signer.NewSigner()
 	data, err := json.Marshal(att)
 	if err != nil {
 		return nil, fmt.Errorf("marshaling attestation: %w", err)
 	}
-	bundle, err := signer.SignStatement(data)
+	signed, err := sg.SignStatementBundle(data)
 	if err != nil {
 		return nil, fmt.Errorf("signing statement: %w", err)
 	}
 
-	// Marshal the bundle to JS
-	bundleData, err := protojson.Marshal(bundle)
-	if err != nil {
-		return nil, fmt.Errorf("marshaling signed bundle: %w", err)
-	}
+	// Wrap the signed bundle as an attestation.Envelope so the
+	// collector's github driver can upload it. Merge instead of
+	// dereferencing to avoid copying the proto message's lock.
+	env := &bundleenv.Envelope{}
+	proto.Merge(&env.Bundle, signed.Bundle)
 
-	// First, sign the attestation
-	uploader := upload.NewClient()
-	if err := uploader.PushBundleToGithub(p.Options.Org, p.Options.Repo, bundleData); err != nil {
-		return nil, fmt.Errorf("pushing signed bundle to GitHub: %w", err)
+	// Build the GitHub attestations driver and store the bundle.
+	driver, err := cdgh.New(
+		cdgh.WithOwner(p.Options.Org),
+		cdgh.WithRepo(p.Options.Repo),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("building github attestations driver: %w", err)
+	}
+	if err := driver.Store(context.Background(), attestation.StoreOptions{}, []attestation.Envelope{env}); err != nil {
+		return nil, fmt.Errorf("uploading attestation: %w", err)
 	}
 
 	return &api.StatementNotice{
@@ -94,37 +100,36 @@ func (p *Publisher) PublishAttestation(att ampel.Statement) (*api.StatementNotic
 	}, nil
 }
 
-func (p *Publisher) ReadBranchVEX(branch *api.Branch) ([]ampel.Envelope, error) {
+func (p *Publisher) ReadBranchVEX(branch *api.Branch) ([]attestation.Envelope, error) {
 	if p.Options.Org == "" || p.Options.Repo == "" {
 		return nil, errors.New("no repository data set in options")
 	}
-	// Create the collector to fetch attestations
-	ghcollector, err := ghatts.New(
-		ghatts.WithOwner(p.Options.Org),
-		ghatts.WithRepo(p.Options.Repo),
+	// Build the github attestations driver and the collector agent.
+	driver, err := cdgh.New(
+		cdgh.WithOwner(p.Options.Org),
+		cdgh.WithRepo(p.Options.Repo),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("building github attestations collector: %w", err)
+		return nil, fmt.Errorf("building github attestations driver: %w", err)
 	}
-	agent, err := collector.New(collector.WithRepository(ghcollector))
+	agent, err := collector.New(collector.WithRepository(driver))
 	if err != nil {
 		return nil, fmt.Errorf("building collector agent: %w", err)
 	}
-	attestations, err := agent.FetchAttestationsBySubject(context.Background(), []ampel.Subject{
+	attestations, err := agent.FetchAttestationsBySubject(context.Background(), []attestation.Subject{
 		branch.ToResourceDescriptor(),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("fetching branch attestations: %w", err)
 	}
 
-	// Filter attestations to reteurn only the VEX docs
-	query := ampel.NewQuery().WithFilter(&filters.PredicateTypeMatcher{
-		PredicateTypes: map[ampel.PredicateType]struct{}{
-			ampel.PredicateType("https://openvex.dev/ns"):        {},
-			ampel.PredicateType("https://openvex.dev/ns@v0.2.0"): {},
+	// Filter attestations to return only the VEX docs.
+	query := attestation.NewQuery().WithFilter(&filters.PredicateTypeMatcher{
+		PredicateTypes: map[attestation.PredicateType]struct{}{
+			attestation.PredicateType("https://openvex.dev/ns"):        {},
+			attestation.PredicateType("https://openvex.dev/ns@v0.2.0"): {},
 		},
 	})
 
-	// Run the query results:
-	return query.Run(attestations, ampel.WithMode(ampel.QueryModeOr)), nil
+	return query.Run(attestations, attestation.WithMode(attestation.QueryModeOr)), nil
 }
