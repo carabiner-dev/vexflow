@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"sigs.k8s.io/release-utils/util"
+	"sigs.k8s.io/release-utils/helpers"
 
 	"github.com/carabiner-dev/vexflow/internal/config"
 	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
@@ -82,7 +82,7 @@ func addUpdate(parentCmd *cobra.Command) {
 		SilenceErrors:     true,
 		PersistentPreRunE: initLogging,
 		PreRunE: func(_ *cobra.Command, args []string) error {
-			if opts.ConfigPath != "" && util.Exists(opts.ConfigPath) {
+			if opts.ConfigPath != "" && helpers.Exists(opts.ConfigPath) {
 				data, err := config.Load(opts.ConfigPath)
 				if err != nil {
 					return fmt.Errorf("parsing config file: %w", err)

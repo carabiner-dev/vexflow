@@ -4,12 +4,12 @@
 package v1
 
 import (
-	ampel "github.com/carabiner-dev/ampel/pkg/attestation"
+	"github.com/carabiner-dev/attestation"
 	"github.com/openvex/go-vex/pkg/vex"
 )
 
 type VexPublisher interface {
 	PublishDocument(*vex.VEX) (*StatementNotice, error)
-	PublishAttestation(att ampel.Statement) (*StatementNotice, error)
-	ReadBranchVEX(*Branch) ([]ampel.Envelope, error)
+	PublishAttestation(att attestation.Statement) (*StatementNotice, error)
+	ReadBranchVEX(*Branch) ([]attestation.Envelope, error)
 }

@@ -8,12 +8,12 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v3"
-	"sigs.k8s.io/release-utils/util"
+	"sigs.k8s.io/release-utils/helpers"
 )
 
 // Load reads and parses the vexflow configuration file
 func Load(path string) (*Data, error) {
-	if !util.Exists(path) {
+	if !helpers.Exists(path) {
 		return nil, nil
 	}
 	data, err := os.ReadFile(path) //nolint:gosec

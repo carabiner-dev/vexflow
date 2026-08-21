@@ -10,9 +10,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/carabiner-dev/ampel/pkg/attestation"
-	"github.com/carabiner-dev/ampel/pkg/formats/predicate/generic"
-	"github.com/carabiner-dev/ampel/pkg/formats/statement/intoto"
+	"github.com/carabiner-dev/attestation"
+	"github.com/carabiner-dev/collector/predicate/generic"
+	"github.com/carabiner-dev/collector/statement/intoto"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/google/uuid"

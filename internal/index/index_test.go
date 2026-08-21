@@ -10,12 +10,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const testCVE = "CVE-1234-56789"
+
 func statementList(t *testing.T) []*vex.Statement {
 	t.Helper()
 	return []*vex.Statement{
 		{
 			Vulnerability: vex.Vulnerability{
-				Name: "CVE-1234-56789",
+				Name: testCVE,
 				Aliases: []vex.VulnerabilityID{
 					"GHE-1234-56789",
 				},
@@ -101,8 +103,8 @@ func TestMatch(t *testing.T) {
 		expectedLength int
 	}{
 		{name: "test", filters: []FilterFunc{}, expectedLength: 0},
-		{name: "vuln", filters: []FilterFunc{WithVulnerability(&vex.Vulnerability{Name: "CVE-1234-56789"})}, expectedLength: 1},
-		{name: "vulnAlias", filters: []FilterFunc{WithVulnerability(&vex.Vulnerability{Name: "CVE-1234-56789", Aliases: []vex.VulnerabilityID{"GHE-1234-56789"}})}, expectedLength: 1},
+		{name: "vuln", filters: []FilterFunc{WithVulnerability(&vex.Vulnerability{Name: testCVE})}, expectedLength: 1},
+		{name: "vulnAlias", filters: []FilterFunc{WithVulnerability(&vex.Vulnerability{Name: testCVE, Aliases: []vex.VulnerabilityID{"GHE-1234-56789"}})}, expectedLength: 1},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
