@@ -16,10 +16,10 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/in-toto/attestation v1.2.0
 	github.com/openvex/go-vex v0.2.8
-	github.com/package-url/packageurl-go v0.1.6
-	github.com/sirupsen/logrus v1.10.0
+	github.com/package-url/packageurl-go v0.1.7
+	github.com/sirupsen/logrus v1.10.1
 	github.com/spf13/cobra v1.10.2
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	golang.org/x/oauth2 v0.36.0
 	google.golang.org/protobuf v1.36.12-0.20260120151049-f2248ac996af
 	gopkg.in/yaml.v3 v3.0.1
@@ -192,7 +192,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/xattr v0.4.12 // indirect
 	github.com/planetscale/vtprotobuf v0.6.1-0.20240319094008-0393e58bdf10 // indirect
-	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/protobom/protobom v0.5.8 // indirect
 	github.com/regclient/regclient v0.11.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
