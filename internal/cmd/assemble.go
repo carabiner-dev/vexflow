@@ -166,6 +166,14 @@ generated to STDOUT (or to the path specified by --out).
 			}
 
 			var out io.Writer = os.Stdout
+			if opts.OutPath != "" {
+				f, err := os.Create(opts.OutPath)
+				if err != nil {
+					return fmt.Errorf("opening output file: %w", err)
+				}
+				defer f.Close() //nolint:errcheck
+				out = f
+			}
 			return doc.ToJSON(out)
 		},
 	}
