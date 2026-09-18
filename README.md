@@ -98,7 +98,7 @@ added as long as they satisfy the interface.
 
 ### License
 
-Vexflow is Copyright by Carabiner Systems, Inc and released under the Apache 2.0
+Vexflow is Copyright by The OpenVEX Authors and released under the Apache 2.0
 license. If you are using vexflow, please let us know! Also, feel free to file
 issues or improve the project by opening a pull request.
 
