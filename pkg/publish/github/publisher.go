@@ -19,7 +19,7 @@ import (
 	"github.com/openvex/go-vex/pkg/vex"
 	"google.golang.org/protobuf/proto"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 func New(funcs ...fnOpt) (*Publisher, error) {

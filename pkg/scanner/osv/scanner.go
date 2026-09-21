@@ -12,7 +12,7 @@ import (
 	"github.com/google/osv-scanner/v2/pkg/osvscanner"
 	"github.com/sirupsen/logrus"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 func New() *Scanner {

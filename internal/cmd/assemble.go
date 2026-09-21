@@ -16,11 +16,11 @@ import (
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/release-utils/helpers"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
-	"github.com/carabiner-dev/vexflow/pkg/flow"
-	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"
-	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
-	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+	api "github.com/openvex/vexflow/pkg/api/v1"
+	"github.com/openvex/vexflow/pkg/flow"
+	ghpublish "github.com/openvex/vexflow/pkg/publish/github"
+	"github.com/openvex/vexflow/pkg/scanner/osv"
+	"github.com/openvex/vexflow/pkg/triage/github"
 )
 
 var (

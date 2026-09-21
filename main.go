@@ -3,7 +3,7 @@
 
 package main
 
-import "github.com/carabiner-dev/vexflow/internal/cmd"
+import "github.com/openvex/vexflow/internal/cmd"
 
 func main() {
 	cmd.Execute()

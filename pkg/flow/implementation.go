@@ -20,8 +20,8 @@ import (
 	"github.com/openvex/go-vex/pkg/vex"
 	"github.com/sirupsen/logrus"
 
-	vexindex "github.com/carabiner-dev/vexflow/internal/index"
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	vexindex "github.com/openvex/vexflow/internal/index"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 type managerImplementation interface {
@@ -474,7 +474,7 @@ func (di *defaultImplementation) BuildDocument(_ *Options, statements []*vex.Sta
 	if _, err := doc.GenerateCanonicalID(); err != nil {
 		return nil, fmt.Errorf("generating doc ID: %w", err)
 	}
-	doc.Tooling = "http://github.com/carabiner-dev/vexflow"
+	doc.Tooling = "http://github.com/openvex/vexflow"
 	for _, s := range statements {
 		doc.Statements = append(doc.Statements, *s)
 	}

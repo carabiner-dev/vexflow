@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+	"github.com/openvex/vexflow/pkg/triage/github"
 )
 
 type repoOptions struct {
