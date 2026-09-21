@@ -45,7 +45,7 @@ checksum:
   
 release:
   github:
-    owner: carabiner-dev
+    owner: openvex
     name: vexflow
   prerelease: auto
 
