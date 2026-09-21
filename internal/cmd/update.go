@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 	"sigs.k8s.io/release-utils/helpers"
 
-	"github.com/carabiner-dev/vexflow/internal/config"
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
-	"github.com/carabiner-dev/vexflow/pkg/flow"
-	"github.com/carabiner-dev/vexflow/pkg/publish/dir"
-	ghpublish "github.com/carabiner-dev/vexflow/pkg/publish/github"
-	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
-	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+	"github.com/openvex/vexflow/internal/config"
+	api "github.com/openvex/vexflow/pkg/api/v1"
+	"github.com/openvex/vexflow/pkg/flow"
+	"github.com/openvex/vexflow/pkg/publish/dir"
+	ghpublish "github.com/openvex/vexflow/pkg/publish/github"
+	"github.com/openvex/vexflow/pkg/scanner/osv"
+	"github.com/openvex/vexflow/pkg/triage/github"
 )
 
 type updateOptions struct {

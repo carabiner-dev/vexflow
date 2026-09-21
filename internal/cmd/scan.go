@@ -17,9 +17,9 @@ import (
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
-	"github.com/carabiner-dev/vexflow/pkg/flow"
-	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
+	api "github.com/openvex/vexflow/pkg/api/v1"
+	"github.com/openvex/vexflow/pkg/flow"
+	"github.com/openvex/vexflow/pkg/scanner/osv"
 )
 
 type scanRemoteOptions struct {

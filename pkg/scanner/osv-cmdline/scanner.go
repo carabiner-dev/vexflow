@@ -10,7 +10,7 @@ import (
 	cosv "github.com/carabiner-dev/osv/go/osv"
 	"sigs.k8s.io/release-utils/command"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 func New() *Scanner {

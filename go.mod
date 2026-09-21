@@ -1,4 +1,4 @@
-module github.com/carabiner-dev/vexflow
+module github.com/openvex/vexflow
 
 go 1.27.0
 

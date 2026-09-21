@@ -27,7 +27,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/carabiner-dev/vexflow)
+        - prefix(github.com/openvex/vexflow)
 linters:
   enable:
     - asasalint

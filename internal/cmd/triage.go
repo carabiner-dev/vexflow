@@ -9,10 +9,10 @@ import (
 
 	"github.com/spf13/cobra"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
-	"github.com/carabiner-dev/vexflow/pkg/flow"
-	"github.com/carabiner-dev/vexflow/pkg/scanner/osv"
-	"github.com/carabiner-dev/vexflow/pkg/triage/github"
+	api "github.com/openvex/vexflow/pkg/api/v1"
+	"github.com/openvex/vexflow/pkg/flow"
+	"github.com/openvex/vexflow/pkg/scanner/osv"
+	"github.com/openvex/vexflow/pkg/triage/github"
 )
 
 const DefaultBackendRepo = ".vexflow"

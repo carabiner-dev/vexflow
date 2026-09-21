@@ -6,7 +6,7 @@ package flow
 import (
 	"fmt"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 type initFunc func(*Manager) error

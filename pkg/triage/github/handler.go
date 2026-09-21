@@ -18,7 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 var ErrRepositoryNotFound = errors.New("the specified triage repository does not exist")

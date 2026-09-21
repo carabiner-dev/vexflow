@@ -23,7 +23,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	api "github.com/carabiner-dev/vexflow/pkg/api/v1"
+	api "github.com/openvex/vexflow/pkg/api/v1"
 )
 
 // New creates a new flow manager
